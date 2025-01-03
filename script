@@ -3,7 +3,7 @@ local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nebula-S
 local http = game:GetService("HttpService")
 local userId = game.Players.LocalPlayer.UserId
 
-local blacklist = {1918988070}
+local blacklist = {1131586622, 1225643250, 1918988070}
 for _, id in pairs(blacklist) do
     if userId == id then
         game.Players.LocalPlayer:Kick("Access denied.")
