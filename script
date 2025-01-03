@@ -1780,8 +1780,8 @@ local toolName = ""
 
 -- Create an input box for typing the Tool name
 local Input = Misc:CreateInput({
-    Name = "Enter Cursed Tool Name",
-    PlaceholderText = "Type tool name here",
+    Name = "Enter Weapon Name",
+    PlaceholderText = "Type weapon name here",
     CurrentValue = "",
     Numeric = false,
     Callback = function(Text)
