@@ -517,8 +517,35 @@ Tab:CreateToggle({
         autoBossEnabled = State  -- Toggle variable to track the state
         config.autoBossEnabled = State
         saveConfig()
+
+        -- Start countdown if Auto Boss is enabled
+        if State then
+            for i = 30, 1, -1 do
+                task.delay(30 - i, function()
+                    Luna:Notification({
+                        Title = "Auto Boss",
+                        Icon = "notifications_active",
+                        ImageSource = "Material",
+                        Content = "Time remaining: " .. i .. " seconds",
+                        Time = 1  -- Display each notification for 1 second
+                    })
+                end)
+            end
+
+            -- Final notification when the countdown ends
+            task.delay(30, function()
+                Luna:Notification({
+                    Title = "Countdown Complete!",
+                    Icon = "check_circle",
+                    ImageSource = "Material",
+                    Content = "The countdown is complete!",
+                    Time = 5
+                })
+            end)
+        end
     end
 })
+
 
 -- Tween to Boss function
 local function tweenToBoss()
