@@ -972,12 +972,10 @@ function SendMessageEMBED(url, embed)
         ["Content-Type"] = "application/json"
     }
     local data = {
-        ["username"] = "Sterling Hub",
         ["avatar_url"] = "https://imgur.com/5EKp1dm.png",
         ["embeds"] = {
             {
                 ["title"] = embed.title,
-                ["url"] = "https://discord.gg/pvwpXmTmT7",
                 ["description"] = embed.description,
                 ["color"] = embed.color,
                 ["fields"] = embed.fields,
@@ -1003,6 +1001,8 @@ for _, item in pairs(workspace.Objects.Drops:GetChildren()) do
     if proximityPrompt then
         proximityPrompt.Triggered:Connect(function(player)
             local parentName = item.Name
+            SendMessage(url, player.Name .. " has collected " .. parentName)
+
             local embed = {
                 ["title"] = parentName .. " Collected!",
                 ["description"] = player.Name .. " has collected " .. parentName,
@@ -1018,7 +1018,7 @@ for _, item in pairs(workspace.Objects.Drops:GetChildren()) do
                     }
                 },
                 ["footer"] = {
-                    ["text"] = "https://discord.gg/pvwpXmTmT7"
+                    ["text"] = "Item Collection Event"
                 }
             }
             SendMessageEMBED(url, embed)
