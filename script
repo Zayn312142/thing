@@ -10,7 +10,7 @@ local userId = game.Players.LocalPlayer.UserId
 local blacklist = {1131586622, 1225643250, 1918988070}
 for _, id in pairs(blacklist) do
     if userId == id then
-        game.Players.LocalPlayer:Kick("Access denied.")
+        game.Players.LocalPlayer:Kick("Access revoked from using Sterling Hub.")
     end
 end
 
@@ -1781,6 +1781,42 @@ local Button = Misc:CreateButton({
                 Time = 5
             })
         end
+    end
+})
+
+local cooldownToggled = false  -- Track cooldown state
+local function setCooldownTo0()
+    local skills = game:GetService("ReplicatedStorage"):WaitForChild("Skills")
+    for _, child in ipairs(skills:GetChildren()) do
+        if child:IsA("Folder") then
+            local cooldown = child:FindFirstChild("Cooldown")
+            if cooldown then
+                cooldown.Value = 0  -- Set cooldown to 0
+            end
+        end
+    end
+end
+
+local function resetCooldowns()  -- This function restores cooldown to default
+    local skills = game:GetService("ReplicatedStorage"):WaitForChild("Skills")
+    for _, child in ipairs(skills:GetChildren()) do
+        if child:IsA("Folder") then
+            local cooldown = child:FindFirstChild("Cooldown")
+            if cooldown then
+                cooldown.Value = 10  -- Reset cooldown to a default value (example: 10 seconds)
+            end
+        end
+    end
+end
+Misc:CreateToggle({
+    Name = "No Cooldown",
+    Callback = function()
+        if cooldownToggled then
+            resetCooldowns()  -- Restore cooldown to default
+        else
+            setCooldownTo0()  -- Set cooldown to 0
+        end
+        cooldownToggled = not cooldownToggled  -- Toggle the state
     end
 })
 
