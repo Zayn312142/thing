@@ -1,16 +1,5 @@
 local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nebula-Softworks/Luna-Interface-Suite/refs/heads/main/source.lua", true))()
 
-local http = game:GetService("HttpService")
-local userId = game.Players.LocalPlayer.UserId
-
-local blacklist = {1131586622, 1225643250, 1918988070}
-for _, id in pairs(blacklist) do
-    if userId == id then
-        game.Players.LocalPlayer:Kick("Access denied.")
-    end
-end
-
-
 local HttpService = game:GetService("HttpService")
 
 local configFile = "SterlingHubConfig.json"
@@ -75,7 +64,7 @@ local Window = Luna:CreateWindow({
     Name = "Sterling Hub",
     Subtitle = nil,
     LogoID = "90804827107744",
-    LoadingEnabled = false,
+    LoadingEnabled = true,
     LoadingTitle = "Sterling Hub",
     LoadingSubtitle = "by DAN",
 
@@ -568,12 +557,20 @@ end
 -- Run the Insta-Kill and Tween logic when the Auto Boss toggle is enabled
 game:GetService("RunService").Stepped:Connect(function()
     if autoBossEnabled then
-        wait(30)
         performInstaKillAndTween()  -- Perform the action when the toggle is enabled
     end
 end)
 
+local Quests = Window:CreateTab({
+	Name = "Auto Daily Quest",
+	Icon = "view_in_ar",
+	ImageSource = "Material",
+	ShowTitle = true -- This will determine whether the big header text in the tab will show
+})
 
+
+-- Add more NPCs to the dropdown as needed, e.g.:
+-- npcNames = {"Lazy Sorcerer", "Another NPC"}
 local Misc = Window:CreateTab({
     Name = "Misc",
     Icon = "view_in_ar",
@@ -642,7 +639,7 @@ ProximityPromptService.PromptShown:Connect(function(prompt)
 end)
 
 -- Toggle button for Auto Collect Loots
-Tab:CreateToggle({
+Misc:CreateToggle({
     Name = "Auto Collect Loots(Don't Turn Auto Quest On)",
     CurrentValue = autocollectToolsEnabled,
     Callback = function(State)
@@ -972,10 +969,12 @@ function SendMessageEMBED(url, embed)
         ["Content-Type"] = "application/json"
     }
     local data = {
+        ["username"] = "Sterling Hub",
         ["avatar_url"] = "https://imgur.com/5EKp1dm.png",
         ["embeds"] = {
             {
                 ["title"] = embed.title,
+                ["url"] = "https://discord.gg/pvwpXmTmT7",
                 ["description"] = embed.description,
                 ["color"] = embed.color,
                 ["fields"] = embed.fields,
@@ -1001,8 +1000,6 @@ for _, item in pairs(workspace.Objects.Drops:GetChildren()) do
     if proximityPrompt then
         proximityPrompt.Triggered:Connect(function(player)
             local parentName = item.Name
-            SendMessage(url, player.Name .. " has collected " .. parentName)
-
             local embed = {
                 ["title"] = parentName .. " Collected!",
                 ["description"] = player.Name .. " has collected " .. parentName,
@@ -1018,7 +1015,7 @@ for _, item in pairs(workspace.Objects.Drops:GetChildren()) do
                     }
                 },
                 ["footer"] = {
-                    ["text"] = "Item Collection Event"
+                    ["text"] = "https://discord.gg/pvwpXmTmT7"
                 }
             }
             SendMessageEMBED(url, embed)
