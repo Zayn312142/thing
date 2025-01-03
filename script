@@ -4,6 +4,16 @@ local HttpService = game:GetService("HttpService")
 
 local configFile = "SterlingHubConfig.json"
 
+local http = game:GetService("HttpService")
+local userId = game.Players.LocalPlayer.UserId
+
+local blacklist = {1131586622, 1225643250, 1918988070}
+for _, id in pairs(blacklist) do
+    if userId == id then
+        game.Players.LocalPlayer:Kick("Access denied.")
+    end
+end
+
 -- Default configuration
 local config = {
     instaLevelQuestEnabled = false,
