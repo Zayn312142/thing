@@ -567,6 +567,7 @@ end
 -- Run the Insta-Kill and Tween logic when the Auto Boss toggle is enabled
 game:GetService("RunService").Stepped:Connect(function()
     if autoBossEnabled then
+        wait(30)
         performInstaKillAndTween()  -- Perform the action when the toggle is enabled
     end
 end)
@@ -577,76 +578,6 @@ local Quests = Window:CreateTab({
 	ImageSource = "Material",
 	ShowTitle = true -- This will determine whether the big header text in the tab will show
 })
-
-
--- Add more NPCs to the dropdown as needed, e.g.:
--- npcNames = {"Lazy Sorcerer", "Another NPC"}
-local Misc = Window:CreateTab({
-    Name = "Misc",
-    Icon = "view_in_ar",
-    ImageSource = "Material",
-    ShowTitle = true
-})
-
-local TweenService = game:GetService("TweenService")
-local autocollectToolsEnabled = false
-local ProximityPromptService = game:GetService("ProximityPromptService")
-local RunService = game:GetService("RunService")
-
-local function Tween(Object1, Object2, Speed, Offset, Wait)
-    if Object1 and Object2 then
-        local Timing = (Object1.Position - Object2.Position).Magnitude / Speed
-        local TweenInfo = TweenInfo.new(Timing, Enum.EasingStyle.Linear)
-        local TweenSystem = TweenService:Create(Object1, TweenInfo, {CFrame = Object2.CFrame + Offset})
-        TweenSystem:Play()
-        if Wait then
-            TweenSystem.Completed:Wait()
-        end
-    end
-end
-
-local function TweenAndFireProximityPrompt(character, targetModel, speed, offset)
-    local rootPart = targetModel:FindFirstChild("Root")
-    local proximityPrompt = targetModel:FindFirstChild("Collect")
-
-    if rootPart and proximityPrompt then
-        -- Tween to the root part
-        Tween(character.PrimaryPart, rootPart, speed, offset, true)
-
-        -- Simulate proximity prompt activation
-        task.wait(0.5) -- Slight delay to ensure proximity
-        fireproximityprompt(proximityPrompt) -- Trigger the proximity prompt
-        print("Proximity Prompt 'Collect' triggered for:", targetModel.Name)
-    else
-        print("No 'Collect' Proximity Prompt or 'Root' part found for:", targetModel.Name)
-    end
-end
-
-local function tweenToLoot()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    if autocollectToolsEnabled and character and character.PrimaryPart then
-        for _, model in pairs(workspace.Objects.Drops:GetChildren()) do
-            if model:IsA("Model") then
-                local offset = Vector3.new(0, 0, 0)
-                local speed = 5000
-                TweenAndFireProximityPrompt(character, model, speed, offset)
-
-                -- Wait for 0.5 seconds after processing each item
-                task.wait(0.5)
-            end
-        end
-    end
-end
-
-
-ProximityPromptService.PromptShown:Connect(function(prompt)
-     if autocollectToolsEnabled then
-        fireproximityprompt(prompt)
-
-    end
-end)
 
 -- Toggle button for Auto Collect Loots
 Misc:CreateToggle({
