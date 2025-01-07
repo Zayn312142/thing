@@ -93,7 +93,7 @@ Window:CreateHomeTab({
 
 local Tab = Window:CreateTab({
     Name = "Main",
-    Icon = "view_in_ar",
+    Icon = "settings_input_antenna",
     ImageSource = "Material",
     ShowTitle = true
 })
@@ -602,7 +602,7 @@ end)
 
 local Quests = Window:CreateTab({
 	Name = "Auto Daily Quest (Turn On Insta Kill)",
-	Icon = "view_in_ar",
+	Icon = "looks",
 	ImageSource = "Material",
 	ShowTitle = true -- This will determine whether the big header text in the tab will show
 })
@@ -1499,7 +1499,7 @@ tweenToNPC()
 
 local Misc = Window:CreateTab({
     Name = "Misc",
-    Icon = "view_in_ar",
+    Icon = "priority_high",
     ImageSource = "Material",
     ShowTitle = true
 })
@@ -1892,7 +1892,7 @@ local Button = Misc:CreateButton({
 
 local Tab = Window:CreateTab({
     Name = "Move Redeemer",
-    Icon = "view_in_ar",
+    Icon = "redeem",
     ImageSource = "Material",
     ShowTitle = true,
 })
@@ -1927,7 +1927,7 @@ local Button = Tab:CreateButton({
 
 local Settings = Window:CreateTab({
     Name = "Settings",
-    Icon = "view_in_ar",
+    Icon = "settings",
     ImageSource = "Material",
     ShowTitle = true
 })
