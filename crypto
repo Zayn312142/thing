@@ -502,7 +502,7 @@ Tab:CreateToggle({
 RunService.Heartbeat:Connect(function()
     -- Only proceed if the toggle is enabled
     if autoreplayEnabled then
-        wait(45)
+        wait(50)
         autoReplay()
     end
 end)
