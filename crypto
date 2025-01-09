@@ -1609,6 +1609,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local lootUI = game:GetService("Players").LocalPlayer.PlayerGui.Loot
 local flipButton = game:GetService("Players").LocalPlayer.PlayerGui.Loot.Frame.Flip
+local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen.Frame.Replay
 local GuiService = game:GetService("GuiService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = game.Players.LocalPlayer
@@ -1618,6 +1619,7 @@ local endFunctions = false
 local chestTable = {}
 local chestCount = 0
 
+-- Function to update chests
 local function updateChests()
     local dropsFolder = game.Workspace.Objects.Drops:GetChildren()
     chestTable = {}
@@ -1629,13 +1631,9 @@ local function updateChests()
             chestCount = chestCount + 1
         end
     end
-
-    for _, chest in pairs(chestTable) do
-        print("Chest Count:", chestCount)
-        collectChest(chest) -- Pass chest explicitly to collectChest
-    end
 end
 
+-- Function to collect a chest
 local function collectChest(chest)
     if chest:IsA("Model") and chest.Name == "Chest" then
         for _, prompt in pairs(chest:GetChildren()) do
@@ -1647,7 +1645,7 @@ local function collectChest(chest)
             end
         end
 
-        chestCount = chestCount - 1 -- Update chestCount
+        chestCount = chestCount - 1
         for i, v in ipairs(chestTable) do
             if v == chest then
                 table.remove(chestTable, i)
@@ -1657,6 +1655,7 @@ local function collectChest(chest)
     end
 end
 
+-- Function to automatically flip the loot UI
 local function autoFlip()
     while autoCollectEnabled do
         task.wait()
@@ -1677,6 +1676,7 @@ local function autoFlip()
     end
 end
 
+-- Function to automatically collect chests
 local function autoCollectChests()
     while autoCollectEnabled do
         task.wait()
@@ -1691,14 +1691,15 @@ local function autoCollectChests()
     end
 end
 
--- Toggle Button
+-- Toggle button to enable/disable auto collection
 local Toggle = Misc:CreateToggle({
     Name = "Auto Collect Chest",
     CurrentValue = autoCollectEnabled,
     Callback = function(Value)
         autoCollectEnabled = Value
-
-        if autoCollectEnabled then
+        if autoCollectEnabled and not endFunctions then
+            -- Start the coroutines only when the toggle is enabled for the first time
+            endFunctions = true
             coroutine.wrap(autoFlip)()
             coroutine.wrap(autoCollectChests)()
         end
