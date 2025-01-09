@@ -1609,7 +1609,6 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local lootUI = game:GetService("Players").LocalPlayer.PlayerGui.Loot
 local flipButton = game:GetService("Players").LocalPlayer.PlayerGui.Loot.Frame.Flip
-local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen.Frame.Replay
 local GuiService = game:GetService("GuiService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = game.Players.LocalPlayer
@@ -1675,28 +1674,6 @@ local function autoFlip()
     end
 end
 
--- Function to auto-replay when no chests are left
-local function autoReplay()
-    while autoCollectEnabled do
-        task.wait(4)
-        if chestCount == 0 then
-            task.wait(4)
-            if replayButton.Visible and not lootUI.Enabled then
-                GuiService.SelectedObject = replayButton
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                task.wait(0.1)
-                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                task.wait(0.1)
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
-                task.wait(0.1)
-                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
-            end
-        else
-            task.wait(1)
-        end
-    end
-end
-
 -- Function to auto-collect chests
 local function autoCollectChests()
     while autoCollectEnabled do
@@ -1714,7 +1691,7 @@ end
 
 -- Toggle button to enable/disable the auto collect feature
 local Toggle = Misc:CreateToggle({
-    Name = "Auto Collect Chest/Auto Replay",
+    Name = "Auto Collect Chest",
     CurrentValue = config.autoCollectEnabled,
     Callback = function(Value)
         autoCollectEnabled = Value
@@ -1725,7 +1702,6 @@ local Toggle = Misc:CreateToggle({
             -- Start the coroutines when enabled
             coroutine.wrap(autoFlip)()
             coroutine.wrap(autoCollectChests)()
-            coroutine.wrap(autoReplay)()
         end
     end
 })
@@ -1734,8 +1710,8 @@ local Toggle = Misc:CreateToggle({
 if autoCollectEnabled then
     coroutine.wrap(autoFlip)()
     coroutine.wrap(autoCollectChests)()
-    coroutine.wrap(autoReplay)()
 end
+
 
 
 Misc:CreateSection("Free Innate Slots, Skip Spins")
