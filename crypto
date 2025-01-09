@@ -1732,15 +1732,6 @@ local Toggle = Misc:CreateToggle({
     end
 })
 
--- Start the coroutines when the script is first run if autoCollectEnabled is true
-if autoCollectEnabled then
-    coroutine.wrap(autoFlip)()
-    coroutine.wrap(autoCollectChests)()
-    coroutine.wrap(autoReplay)()
-end
-
-
-
 
 Misc:CreateSection("Free Innate Slots, Skip Spins")
 
