@@ -1678,7 +1678,7 @@ end
 -- Function to auto-replay when no chests are left
 local function autoReplay()
     while autoCollectEnabled do
-        task.wait()
+        task.wait(4)
         if chestCount == 0 then
             task.wait(4)
             if replayButton.Visible and not lootUI.Enabled then
