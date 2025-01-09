@@ -1605,17 +1605,18 @@ end)
 
 local autoCollectEnabled = false
 local ProximityPromptService = game:GetService("ProximityPromptService")
-local GuiService = game:GetService("GuiService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local lootUI = game:GetService("Players").LocalPlayer.PlayerGui.Loot
 local flipButton = game:GetService("Players").LocalPlayer.PlayerGui.Loot.Frame.Flip
-local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen.Frame.Replay
+local GuiService = game:GetService("GuiService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local player = game.Players.LocalPlayer
 local flipDelayTime = 0.1
 
 local chestTable = {}
 local chestCount = 0
 
--- Function to update the list of chests
 local function updateChests()
     local dropsFolder = game.Workspace.Objects.Drops:GetChildren()
     chestTable = {}
@@ -1630,11 +1631,10 @@ local function updateChests()
 
     for _, chest in pairs(chestTable) do
         print("Chest Count:", chestCount)
-        collectChest(chest)
+        collectChest(chest) -- Pass chest explicitly to collectChest
     end
 end
 
--- Function to collect a chest
 local function collectChest(chest)
     if chest:IsA("Model") and chest.Name == "Chest" then
         for _, prompt in pairs(chest:GetChildren()) do
@@ -1646,7 +1646,7 @@ local function collectChest(chest)
             end
         end
 
-        chestCount = chestCount - 1
+        chestCount = chestCount - 1 -- Update chestCount
         for i, v in ipairs(chestTable) do
             if v == chest then
                 table.remove(chestTable, i)
@@ -1656,7 +1656,6 @@ local function collectChest(chest)
     end
 end
 
--- Function to auto-flip loot
 local function autoFlip()
     while autoCollectEnabled do
         task.wait()
@@ -1677,60 +1676,39 @@ local function autoFlip()
     end
 end
 
--- Function to auto-replay
-local function autoReplay()
-    while autoCollectEnabled do
-        task.wait()
-        if chestCount == 0 then
-            task.wait(4)
-            if replayButton.Visible and not lootUI.Enabled then
-                GuiService.SelectedObject = replayButton
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                task.wait(0.1)
-                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                task.wait(0.1)
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
-                task.wait(0.1)
-                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
-            end
-        else
-            task.wait(1)
-        end
-    end
-end
-
--- Function to auto-collect chests
 local function autoCollectChests()
     while autoCollectEnabled do
         task.wait()
-        updateChests()
+        updateChests()  -- Update the chests in the Drops folder
 
         if chestCount > 0 then
             for _, chest in pairs(chestTable) do
-                collectChest(chest)
+                collectChest(chest)  -- Now directly collect the chest
                 break
             end
         end
     end
 end
 
--- Toggle button to enable/disable the auto-collect feature
 local Toggle = Misc:CreateToggle({
-    Name = "Auto Collect Chest/Auto Replay",
-    CurrentValue = config.autoCollectEnabled,
+    Name = "Auto Collect Chest/Auto Flip",
+    CurrentValue = autoCollectEnabled,
     Callback = function(Value)
         autoCollectEnabled = Value
-        config.autoCollectEnabled = Value
-        saveConfig()
 
         if Value then
             -- Start the coroutines when the toggle is enabled
             coroutine.wrap(autoFlip)()
             coroutine.wrap(autoCollectChests)()
-            coroutine.wrap(autoReplay)()
         end
     end
 })
+
+-- Start the coroutines when the script is first run if autoCollectEnabled is true
+if autoCollectEnabled then
+    coroutine.wrap(autoFlip)()
+    coroutine.wrap(autoCollectChests)()
+end
 
 
 Misc:CreateSection("Free Innate Slots, Skip Spins")
