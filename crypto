@@ -1603,40 +1603,122 @@ game:GetService("RunService").Heartbeat:Connect(function()
     performautopromote()
 end)
 
-local autoCollectEnabled = false
-local collectdelayTime = 0
-local flipDelayTime = 0 
-local lastFired = 0
+local autoCollectEnabled = true
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local lootUI = game:GetService("Players").LocalPlayer.PlayerGui.Loot
+local flipButton = game:GetService("Players").LocalPlayer.PlayerGui.Loot.Frame.Flip
+local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen.Frame.Replay
 local GuiService = game:GetService("GuiService")
-local flipButton = game.Players.LocalPlayer.PlayerGui.Loot.Frame.Flip
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local lastFlipTime = 0
-local flipDelay = 0.5
+local player = game.Players.LocalPlayer
+local flipDelayTime = 0.1
 
+local chestTable = {}
+local chestCount = 0
 
-local function autoFlip()
-    local currentTime = tick()  -- Get the current time
-    if currentTime - lastFlipTime >= flipDelay then
-      GuiService.SelectedObject = flipButton
-      VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-      wait(flipDelayTime)
-      VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-      wait(flipDelayTime)
-      VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
-      wait(flipDelayTime)
-      VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
+local function updateChests()
+    local dropsFolder = game.Workspace.Objects.Drops:GetChildren()
+    chestTable = {}
+    chestCount = 0
 
-      lastFlipTime = currentTime
-
+    for _, chest in pairs(dropsFolder) do
+        if chest:IsA("Model") and chest.Name == "Chest" then
+            table.insert(chestTable, chest)
+            chestCount = chestCount + 1
+        end
+    end
+    for _, chest in pairs(chestTable) do
+        print(chest.Name)
     end
 end
 
+local function collectChest(chest)
+    if chest:IsA("Model") and chest.Name == "Chest" then 
+        for _, prompt in pairs(chest:GetChildren()) do
+            if prompt:IsA("ProximityPrompt") then
+                prompt:InputHoldBegin()
+                task.wait(0.06)
+                prompt:InputHoldEnd()
+                task.wait(1)
+            end
+        end
+
+        chestCount = chestCount - 1
+        for i, v in ipairs(chestTable) do
+            if v == chest then
+                table.remove(chestTable, i)
+                break
+            end
+        end
+    end
+end
+
+
+local function autoFlip()
+    while autoCollectEnabled do
+        task.wait()
+        if lootUI.Enabled then
+            task.wait(flipDelayTime)
+            GuiService.SelectedObject = flipButton
+
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+            task.wait(0.1)
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+            task.wait(0.1)
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
+            task.wait(0.1)
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
+        else
+            task.wait(1)
+        end
+    end
+end
+
+local function autoReplay()
+    while autoCollectEnabled do
+        task.wait()
+        if chestCount == 0 then
+            task.wait(4)
+            if replayButton.Visible and not lootUI.Enabled then
+                GuiService.SelectedObject = replayButton
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
+            end
+        else
+            task.wait(1)
+        end
+    end
+end
+
+
+local function autoCollectChests()
+    while autoCollectEnabled do
+        task.wait()
+        updateChests()  -- Update the chests in the Drops folder
+
+        if chestCount > 0 then
+            for _, chest in pairs(chestTable) do
+                collectChest(chest)  -- Now directly collect the chest
+                break
+            end
+        end
+    end
+end
+
+
+
+coroutine.wrap(autoFlip)()
+coroutine.wrap(autoCollectChests)()
+coroutine.wrap(autoReplay)()
 local Toggle = Misc:CreateToggle({
-    Name = "Auto Collect",
+    Name = "Auto Collect Chest/Auto Replay",
     CurrentValue = config.autoCollectEnabled,
     Callback = function(Value)
         autoCollectEnabled = Value
@@ -1644,47 +1726,6 @@ local Toggle = Misc:CreateToggle({
         saveConfig()
     end
 })
-
-local Slider = Misc:CreateSlider({
-    Name = "Collect Chest Delay",
-    Range = {0, 10},
-    Increment = 1,
-    CurrentValue = collectdelayTime,
-    Callback = function(Value)
-        collectdelayTime = Value
-        config.collectdelayTime = Value
-        saveConfig()
-    end
-})
-
-local Slider = Misc:CreateSlider({
-    Name = "Flip Delay",
-    Range = {0, 10},
-    Increment = 1,
-    CurrentValue = flipDelayTime,  -- Initial value
-    Callback = function(Value)
-        flipDelayTime = Value
-        config.flipDelayTime = Value
-        saveConfig()
-    end
-})
-
-ProximityPromptService.PromptShown:Connect(function(prompt)
-    local currentTime = tick() 
-    if autoCollectEnabled and (currentTime - lastFired >= collectdelayTime) then
-        fireproximityprompt(prompt)
-        lastFired = currentTime
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if autoCollectEnabled then
-        if lootUI.Enabled == true then
-            autoFlip()
-        end
-    end
-end)
-
 
 
 Misc:CreateSection("Free Innate Slots, Skip Spins")
