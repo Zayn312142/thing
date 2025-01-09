@@ -1603,15 +1603,13 @@ game:GetService("RunService").Heartbeat:Connect(function()
     performautopromote()
 end)
 
-local autoCollectEnabled = true
+local autoCollectEnabled = false
 local ProximityPromptService = game:GetService("ProximityPromptService")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local lootUI = game:GetService("Players").LocalPlayer.PlayerGui.Loot
-local flipButton = game:GetService("Players").LocalPlayer.PlayerGui.Loot.Frame.Flip
 local GuiService = game:GetService("GuiService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local player = game.Players.LocalPlayer
+local lootUI = game:GetService("Players").LocalPlayer.PlayerGui.Loot
+local flipButton = game:GetService("Players").LocalPlayer.PlayerGui.Loot.Frame.Flip
+local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen.Frame.Replay
 local flipDelayTime = 0.1
 
 local chestTable = {}
@@ -1629,11 +1627,16 @@ local function updateChests()
             chestCount = chestCount + 1
         end
     end
+
+    for _, chest in pairs(chestTable) do
+        print("Chest Count:", chestCount)
+        collectChest(chest)
+    end
 end
 
 -- Function to collect a chest
 local function collectChest(chest)
-    if chest:IsA("Model") and chest.Name == "Chest" then 
+    if chest:IsA("Model") and chest.Name == "Chest" then
         for _, prompt in pairs(chest:GetChildren()) do
             if prompt:IsA("ProximityPrompt") then
                 prompt:InputHoldBegin()
@@ -1674,6 +1677,28 @@ local function autoFlip()
     end
 end
 
+-- Function to auto-replay
+local function autoReplay()
+    while autoCollectEnabled do
+        task.wait()
+        if chestCount == 0 then
+            task.wait(4)
+            if replayButton.Visible and not lootUI.Enabled then
+                GuiService.SelectedObject = replayButton
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
+            end
+        else
+            task.wait(1)
+        end
+    end
+end
+
 -- Function to auto-collect chests
 local function autoCollectChests()
     while autoCollectEnabled do
@@ -1689,9 +1714,9 @@ local function autoCollectChests()
     end
 end
 
--- Toggle button to enable/disable the auto collect feature
+-- Toggle button to enable/disable the auto-collect feature
 local Toggle = Misc:CreateToggle({
-    Name = "Auto Collect Chest",
+    Name = "Auto Collect Chest/Auto Replay",
     CurrentValue = config.autoCollectEnabled,
     Callback = function(Value)
         autoCollectEnabled = Value
@@ -1699,9 +1724,10 @@ local Toggle = Misc:CreateToggle({
         saveConfig()
 
         if Value then
-            -- Start the coroutines when enabled
+            -- Start the coroutines when the toggle is enabled
             coroutine.wrap(autoFlip)()
             coroutine.wrap(autoCollectChests)()
+            coroutine.wrap(autoReplay)()
         end
     end
 })
@@ -1710,7 +1736,9 @@ local Toggle = Misc:CreateToggle({
 if autoCollectEnabled then
     coroutine.wrap(autoFlip)()
     coroutine.wrap(autoCollectChests)()
+    coroutine.wrap(autoReplay)()
 end
+
 
 
 
