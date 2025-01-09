@@ -1613,6 +1613,7 @@ local GuiService = game:GetService("GuiService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = game.Players.LocalPlayer
 local flipDelayTime = 0.1
+local endFunctions = false
 
 local chestTable = {}
 local chestCount = 0
@@ -1690,26 +1691,19 @@ local function autoCollectChests()
     end
 end
 
+-- Toggle Button
 local Toggle = Misc:CreateToggle({
-    Name = "Auto Collect Chest/Auto Flip",
+    Name = "Auto Collect Chest",
     CurrentValue = autoCollectEnabled,
     Callback = function(Value)
         autoCollectEnabled = Value
 
-        if Value then
-            -- Start the coroutines when the toggle is enabled
+        if autoCollectEnabled then
             coroutine.wrap(autoFlip)()
             coroutine.wrap(autoCollectChests)()
         end
     end
 })
-
--- Start the coroutines when the script is first run if autoCollectEnabled is true
-if autoCollectEnabled then
-    coroutine.wrap(autoFlip)()
-    coroutine.wrap(autoCollectChests)()
-end
-
 
 Misc:CreateSection("Free Innate Slots, Skip Spins")
 
