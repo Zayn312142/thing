@@ -1694,9 +1694,11 @@ end
 -- Toggle button to enable/disable auto collection
 local Toggle = Misc:CreateToggle({
     Name = "Auto Collect Chest",
-    CurrentValue = autoCollectEnabled,
+    CurrentValue = config.autoCollectEnabled,
     Callback = function(Value)
         autoCollectEnabled = Value
+        config.autoCollectEnabled = Value
+        saveConfig()
         if autoCollectEnabled and not endFunctions then
             -- Start the coroutines only when the toggle is enabled for the first time
             endFunctions = true
