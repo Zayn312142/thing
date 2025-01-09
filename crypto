@@ -1618,6 +1618,7 @@ local flipDelayTime = 0.1
 local chestTable = {}
 local chestCount = 0
 
+-- Function to update the list of chests
 local function updateChests()
     local dropsFolder = game.Workspace.Objects.Drops:GetChildren()
     chestTable = {}
@@ -1629,11 +1630,9 @@ local function updateChests()
             chestCount = chestCount + 1
         end
     end
-    for _, chest in pairs(chestTable) do
-        print(chest.Name)
-    end
 end
 
+-- Function to collect a chest
 local function collectChest(chest)
     if chest:IsA("Model") and chest.Name == "Chest" then 
         for _, prompt in pairs(chest:GetChildren()) do
@@ -1655,7 +1654,7 @@ local function collectChest(chest)
     end
 end
 
-
+-- Function to auto-flip loot
 local function autoFlip()
     while autoCollectEnabled do
         task.wait()
@@ -1676,6 +1675,7 @@ local function autoFlip()
     end
 end
 
+-- Function to auto-replay when no chests are left
 local function autoReplay()
     while autoCollectEnabled do
         task.wait()
@@ -1697,26 +1697,22 @@ local function autoReplay()
     end
 end
 
-
+-- Function to auto-collect chests
 local function autoCollectChests()
     while autoCollectEnabled do
         task.wait()
-        updateChests()  -- Update the chests in the Drops folder
+        updateChests()
 
         if chestCount > 0 then
             for _, chest in pairs(chestTable) do
-                collectChest(chest)  -- Now directly collect the chest
+                collectChest(chest)
                 break
             end
         end
     end
 end
 
-
-
-coroutine.wrap(autoFlip)()
-coroutine.wrap(autoCollectChests)()
-coroutine.wrap(autoReplay)()
+-- Toggle button to enable/disable the auto collect feature
 local Toggle = Misc:CreateToggle({
     Name = "Auto Collect Chest/Auto Replay",
     CurrentValue = config.autoCollectEnabled,
@@ -1724,8 +1720,22 @@ local Toggle = Misc:CreateToggle({
         autoCollectEnabled = Value
         config.autoCollectEnabled = Value
         saveConfig()
+
+        if Value then
+            -- Start the coroutines when enabled
+            coroutine.wrap(autoFlip)()
+            coroutine.wrap(autoCollectChests)()
+            coroutine.wrap(autoReplay)()
+        end
     end
 })
+
+-- Start the coroutines when the script is first run if autoCollectEnabled is true
+if autoCollectEnabled then
+    coroutine.wrap(autoFlip)()
+    coroutine.wrap(autoCollectChests)()
+    coroutine.wrap(autoReplay)()
+end
 
 
 Misc:CreateSection("Free Innate Slots, Skip Spins")
