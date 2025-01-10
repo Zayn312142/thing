@@ -502,7 +502,7 @@ Tab:CreateToggle({
 RunService.Heartbeat:Connect(function()
     -- Only proceed if the toggle is enabled
     if autoreplayEnabled then
-        wait(120)
+        wait(70)
         autoReplay()
     end
 end)
@@ -1604,6 +1604,7 @@ game:GetService("RunService").Heartbeat:Connect(function()
 end)
 
 local autoCollectEnabled = false
+local endFunctions = false
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -1613,18 +1614,16 @@ local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScree
 local GuiService = game:GetService("GuiService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = game.Players.LocalPlayer
-local flipDelayTime = 0.1
-local endFunctions = false
+local flipDelayTime = 0.4
 
 local chestTable = {}
 local chestCount = 0
 
--- Function to update chests
+-- Function to update chest data
 local function updateChests()
     local dropsFolder = game.Workspace.Objects.Drops:GetChildren()
     chestTable = {}
     chestCount = 0
-
     for _, chest in pairs(dropsFolder) do
         if chest:IsA("Model") and chest.Name == "Chest" then
             table.insert(chestTable, chest)
@@ -1636,6 +1635,8 @@ end
 -- Function to collect a chest
 local function collectChest(chest)
     if chest:IsA("Model") and chest.Name == "Chest" then
+        local dropsFolder = game.Workspace.Objects.Drops
+        local initialChestCount = #dropsFolder:GetChildren()  -- Get the initial chest count
         for _, prompt in pairs(chest:GetChildren()) do
             if prompt:IsA("ProximityPrompt") then
                 prompt:InputHoldBegin()
@@ -1644,25 +1645,20 @@ local function collectChest(chest)
                 task.wait(1)
             end
         end
-
-        chestCount = chestCount - 1
-        for i, v in ipairs(chestTable) do
-            if v == chest then
-                table.remove(chestTable, i)
-                break
-            end
+        local finalChestCount = #dropsFolder:GetChildren()  -- Get the final chest count
+        if finalChestCount < initialChestCount then
+            chestCount = finalChestCount
         end
     end
 end
 
--- Function to automatically flip the loot UI
+-- Auto flip function
 local function autoFlip()
     while autoCollectEnabled do
         task.wait()
         if lootUI.Enabled then
             task.wait(flipDelayTime)
             GuiService.SelectedObject = flipButton
-
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
             task.wait(0.1)
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
@@ -1676,22 +1672,31 @@ local function autoFlip()
     end
 end
 
--- Function to automatically collect chests
+-- Auto collect chests function
 local function autoCollectChests()
     while autoCollectEnabled do
         task.wait()
-        updateChests()  -- Update the chests in the Drops folder
-
+        updateChests()
         if chestCount > 0 then
             for _, chest in pairs(chestTable) do
-                collectChest(chest)  -- Now directly collect the chest
-                break
+                collectChest(chest)
+                break  -- Collect only the first chest, can adjust if you want to collect more
             end
         end
     end
 end
 
--- Toggle button to enable/disable auto collection
+-- Debugging chest count
+local function debugChestCount()
+    while true do
+        local dropsFolder = game.Workspace.Objects.Drops
+        local finalChestCount = #dropsFolder:GetChildren()
+        print("Chests:", finalChestCount)
+        task.wait(1)
+    end
+end
+
+-- Toggle Button Integration
 local Toggle = Misc:CreateToggle({
     Name = "Auto Collect Chest",
     CurrentValue = config.autoCollectEnabled,
@@ -1700,13 +1705,17 @@ local Toggle = Misc:CreateToggle({
         config.autoCollectEnabled = Value
         saveConfig()
         if autoCollectEnabled and not endFunctions then
-            -- Start the coroutines only when the toggle is enabled for the first time
             endFunctions = true
-            coroutine.wrap(autoFlip)()
-            coroutine.wrap(autoCollectChests)()
+            coroutine.wrap(autoFlip)()  -- Start auto flipping
+            coroutine.wrap(autoCollectChests)()  -- Start auto collecting chests
+        elseif not autoCollectEnabled then
+            endFunctions = false  -- Stop auto collect and flip if disabled
         end
     end
 })
+
+-- Start debug in a separate coroutine
+coroutine.wrap(debugChestCount)()
 
 Misc:CreateSection("Free Innate Slots, Skip Spins")
 
