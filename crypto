@@ -497,11 +497,11 @@ Tab:CreateToggle({
         -- Start or stop the autoReplay function based on the toggle state
         if State then
             -- Enable auto replay
-            autoCollectEnabled = true
+            autoreplayEnabled = true
             task.spawn(autoReplay)  -- Run autoReplay in a separate thread
         else
             -- Disable auto replay
-            autoCollectEnabled = false
+            autoreplayEnabled = false
         end
     end
 })
