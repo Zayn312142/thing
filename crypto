@@ -451,40 +451,37 @@ game:GetService("RunService").Stepped:Connect(function()
 end)
 
 Tab:CreateSection("Auto Boss")
-local delayTime = 0.5    -- The delay time between actions
-local autoreplayEnabled = false
+-- Define the bossFolder
+local bossFolder = game.Workspace.Objects.Mobs
 
-local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen.Frame.Replay
-local readyUI = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen
-local GuiService = game:GetService("GuiService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local folder = workspace.Objects.Drops
-
--- Function to Auto Replay after All Chests are Collected
+-- Auto Replay Function
 local function autoReplay()
-    -- Wait for the chest folder to be empty (all chests collected)
-    print("Waiting for chests to be collected...")
-  -- Wait an additional 3 seconds to ensure chests are processed
+    while autoCollectEnabled do
+        task.wait(1)
 
-    -- Now check if the folder is empty
-    if #workspace.Objects.Drops:GetChildren() == 0 then
-    
-    end
+        -- Update bossTable with bosses from bossFolder
+        local bossTable = {}
+        for _, boss in pairs(bossFolder:GetChildren()) do
+            if boss:IsA("Model") then
+                table.insert(bossTable, boss)
+            end
+        end
 
-    -- After the folder is empty, trigger the auto replay
-    if readyUI.Enabled and replayButton then
-        print("Chests collected, starting auto-replay...")
-
-        GuiService.SelectedObject = replayButton
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-        wait(delayTime)
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-        wait(delayTime)
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
-        wait()
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
-    else
-        print("Replay button or UI not available.")
+        if chestCount == 0 and #bossTable == 0 then
+            task.wait(4)
+            if replayButton.Visible and not lootUI.Enabled then
+                GuiService.SelectedObject = replayButton
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
+            end
+        else
+            task.wait(1)
+        end
     end
 end
 
@@ -496,20 +493,20 @@ Tab:CreateToggle({
         autoreplayEnabled = State  -- Toggle variable to track the state
         config.autoreplayEnabled = State
         saveConfig()
+
+        -- Start or stop the autoReplay function based on the toggle state
+        if State then
+            -- Enable auto replay
+            autoCollectEnabled = true
+            task.spawn(autoReplay)  -- Run autoReplay in a separate thread
+        else
+            -- Disable auto replay
+            autoCollectEnabled = false
+        end
     end
 })
 
-RunService.Heartbeat:Connect(function()
-    -- Only proceed if the toggle is enabled
-    if autoreplayEnabled then
-        wait(70)
-        autoReplay()
-    end
-end)
 
-
-
--- Create an Auto Boss Toggle in the UI
 Tab:CreateToggle({
     Name = "Auto Boss",
     CurrentValue = config.autoBossEnabled,  -- Default off state
