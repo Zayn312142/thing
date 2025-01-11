@@ -452,14 +452,29 @@ end)
 
 Tab:CreateSection("Auto Boss")
 -- Define the bossFolder
+local autoReplayEnabled = false
+local ProximityPromptService = game:GetService("ProximityPromptService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local lootUI = game:GetService("Players").LocalPlayer.PlayerGui.Loot
+local flipButton = game:GetService("Players").LocalPlayer.PlayerGui.Loot.Frame.Flip
+local replayButton = game:GetService("Players").LocalPlayer.PlayerGui.ReadyScreen.Frame.Replay
+local GuiService = game:GetService("GuiService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local player = game.Players.LocalPlayer
+local flipDelayTime = 0.4
 local bossFolder = game.Workspace.Objects.Mobs
+local dropsFolder = game.Workspace.Objects.Drops
 
--- Auto Replay Function
+-- Adjust the autoReplay function to use autoReplayEnabled:
 local function autoReplay()
-    while autoCollectEnabled do
+    -- Wait for 35 seconds before starting to check conditions once
+    task.wait(35)
+
+    while autoReplayEnabled do
         task.wait(1)
 
-        -- Update bossTable with bosses from bossFolder
+        -- Check if boss folder is empty
         local bossTable = {}
         for _, boss in pairs(bossFolder:GetChildren()) do
             if boss:IsA("Model") then
@@ -467,7 +482,19 @@ local function autoReplay()
             end
         end
 
-        if chestCount == 0 and #bossTable == 0 then
+        -- Check if the drops folder (chests) is empty
+        local chestTable = {}
+        local chests = dropsFolder:FindFirstChild("Chests") -- Check if Chests folder exists
+        if chests then
+            for _, chest in pairs(chests:GetChildren()) do
+                if chest:IsA("Model") then
+                    table.insert(chestTable, chest)
+                end
+            end
+        end
+
+        -- If there are no bosses and no chests, trigger the replay button
+        if #bossTable == 0 and #chestTable == 0 then
             task.wait(4)
             if replayButton.Visible and not lootUI.Enabled then
                 GuiService.SelectedObject = replayButton
@@ -485,25 +512,19 @@ local function autoReplay()
     end
 end
 
--- Create an Auto Replay Toggle in the UI
+-- Create the Auto Replay toggle in your Tab
 Tab:CreateToggle({
     Name = "Auto Replay",
     CurrentValue = config.autoreplayEnabled,  -- Default off state
     Callback = function(State)
-        autoreplayEnabled = State  -- Toggle variable to track the state
-        config.autoreplayEnabled = State
-        saveConfig()
+        autoReplayEnabled = State  -- Update the toggle state
+        config.autoreplayEnabled = State  -- Save to config
+        saveConfig()  -- Persist the setting
 
-        -- Start or stop the autoReplay function based on the toggle state
         if State then
-            -- Enable auto replay
-            autoreplayEnabled = true
-            task.spawn(autoReplay)  -- Run autoReplay in a separate thread
-        else
-            -- Disable auto replay
-            autoreplayEnabled = false
+            task.spawn(autoReplay)  -- Start the autoReplay function
         end
-    end
+    end,
 })
 
 
