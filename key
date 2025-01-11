@@ -1,42 +1,22 @@
--- Linoria Hub Setup
-local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
+-- Fluent UI Setup
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+local key = ""
 
-local Window = Library:CreateWindow({
-    Title = 'Key System Example',
-    Center = true,
-    AutoShow = true,
-})
-
--- Tabs Setup
-local Tabs = {
-    Main = Window:AddTab('Main'),
-}
-
--- Add Unload Button to Main Tab
-local MainMenuGroup = Tabs.Main:AddLeftGroupbox('Main Settings')
-MainMenuGroup:AddButton('Unload', function() 
-    Library:Unload() 
-end)
-
-
-local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Authentication')
-
--- Platoboost configuration
-local service = 1095 -- Your service id [IMPORTANT]
-local secret = "92a9fbaf-cc2d-4afc-89f5-d0d0c8392241" -- Secret key
-local useNonce = true -- Use nonce to prevent replay attacks
-
--- Internal functions
-local fRequest, fStringFormat, fStringChar, fToString, fStringSub, fOsTime, fMathRandom, fMathFloor, fGetHwid = request or http.request or http_request or syn.request, string.format, string.char, tostring, string.sub, os.time, math.random, math.floor, gethwid or function() return game:GetService("Players").LocalPlayer.UserId end
-
+-- Plato API Setup (replace these with your actual values)
+local service = 1095  -- Your service ID
+local secret = "92a9fbaf-cc2d-4afc-89f5-d0d0c8392241"  -- Your secret key
 local host = "https://api.platoboost.com"
+
+-- Helper Functions
+local fRequest = request or http.request or http_request or syn.request
+local fToString = tostring
+local fGetHwid = gethwid or function() return game:GetService("Players").LocalPlayer.UserId end
+local fOsTime = os.time
+
+-- Plato Cache Setup
 local cachedLink, cachedTime = "", 0
 
--- Cache the link
 local function cacheLink()
     if cachedTime + (10 * 60) < fOsTime() then
         local response = fRequest({
@@ -62,9 +42,6 @@ local function cacheLink()
                 print(decoded.message)
                 return false, decoded.message
             end
-        elseif response.StatusCode == 429 then
-            print("You are being rate limited, please wait 20 seconds and try again.")
-            return false, "Rate limited"
         else
             print("Failed to cache link.")
             return false, "Failed to cache link"
@@ -74,59 +51,20 @@ local function cacheLink()
     end
 end
 
--- Generate nonce
 local function generateNonce()
     local str = ""
     for _ = 1, 16 do
-        str = str .. fStringChar(fMathFloor(fMathRandom() * (122 - 97 + 1)) + 97)
+        str = str .. string.char(math.floor(math.random() * (122 - 97 + 1)) + 97)
     end
     return str
 end
 
--- Copy link to clipboard
-local function copyLink()
-    local success, link = cacheLink()
-    if success then
-        setclipboard(link)
-    end
-end
-
--- Define whitelisted keys
+-- Whitelist keys
 local whitelist = {
     "KEY_crip213",
     "KEY_ego213",
     "KEY_dan521"
 }
-
--- Filepath for SterlingHubConfig.json
-local configFilePath = "SterlingHubKey.json"
-
--- Load and Save Key to JSON File
-local function loadKeyFromFile()
-    local success, data = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(readfile(configFilePath))
-    end)
-    if success and data then
-        return data.key
-    else
-        return nil
-    end
-end
-
-local function saveKeyToFile(key)
-    local data = { key = key }
-    local success, err = pcall(function()
-        writefile(configFilePath, game:GetService("HttpService"):JSONEncode(data))
-    end)
-    if success then
-        print("Key saved to file: SterlingHubKey.json")
-    else
-        print("Failed to save key to file:", err)
-    end
-end
-
--- Persisted key storage
-local savedKey = loadKeyFromFile()  -- Load previously saved key if any
 
 local function verifyKey(key)
     -- Check if the key is in the whitelist
@@ -135,8 +73,6 @@ local function verifyKey(key)
             -- If the key is whitelisted, execute the SterlingNew script
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
             print("Whitelisted key detected. Access granted!")
-            saveKeyToFile(key)  -- Save the valid key
-            Library:Unload()  -- Unload Linoria Hub after verification
             return true
         end
     end
@@ -144,10 +80,6 @@ local function verifyKey(key)
     -- If the key is not whitelisted, proceed with the API check (existing behavior)
     local nonce = generateNonce()
     local endpoint = host .. "/public/whitelist/" .. fToString(service) .. "?identifier=" .. fGetHwid() .. "&key=" .. key
-
-    if useNonce then
-        endpoint = endpoint .. "&nonce=" .. nonce
-    end
 
     local response = fRequest({
         Url = endpoint,
@@ -162,8 +94,6 @@ local function verifyKey(key)
                 -- Key is valid, execute the SterlingNew script
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
                 print("Valid key detected. Access granted!")
-                saveKeyToFile(key)  -- Save the valid key
-                Library:Unload()  -- Unload Linoria Hub after verification
                 return true
             else
                 print("Key is invalid.")
@@ -173,34 +103,70 @@ local function verifyKey(key)
             print(decoded.message)
             return false
         end
-    elseif response.StatusCode == 429 then
-        print("You are being rate limited, please wait 20 seconds and try again.")
-        return false
     else
-        print("Server returned an invalid status code, please try again later.")
+        print("Server error.")
         return false
     end
 end
 
+-- Fluent UI Setup
+local Window = Fluent:CreateWindow({
+    Title = "Key System",
+    SubTitle = "SterlingHub",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 340),
+    Acrylic = false,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
 
--- Automatically use the saved key if available
-if savedKey and verifyKey(savedKey) then
-    print("Using saved key: " .. savedKey)
-end
+local Tabs = {
+    KeySys = Window:AddTab({ Title = "Key System", Icon = "key" }),
+}
 
--- Create GUI Buttons
-local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Authentication')
+-- Create the Key Input Box
+local Entkey = Tabs.KeySys:AddInput("Input", {
+    Title = "Enter Key",
+    Description = "Enter Key Here",
+    Default = "",
+    Placeholder = "Enter key…",
+    Numeric = false,
+    Finished = false,
+    Callback = function(Value)
+        key = Value
+    end
+})
 
--- 🔑 "Get Key" Button
-LeftGroupBox:AddButton({
-    Text = 'Get Key',
-    Func = function()
-        local success, link = cacheLink() -- Get the cached key link
-        if success then
-            setclipboard(link) -- Copy link to clipboard
+-- "Check Key" Button
+Tabs.KeySys:AddButton({
+    Title = "Check Key",
+    Description = "Enter Key before pressing this button",
+    Callback = function()
+        if verifyKey(key) then
+            print("Key is valid!")
+            Fluent:Unload()  -- Unload the Fluent UI window after key verification
+        else
+            print("Key is invalid")
             game:GetService('StarterGui'):SetCore('SendNotification', {
-                Title = 'Key System',
-                Text = 'Key link copied to clipboard!',
+                Title = 'Invalid Key',
+                Text = 'The entered key is not valid.',
+                Duration = 5
+            })
+        end
+    end
+})
+
+-- "Get Key" Button (for copying link or generating key)
+Tabs.KeySys:AddButton({
+    Title = "Get Key",
+    Description = "Get Key here",
+    Callback = function()
+        local success, link = cacheLink()
+        if success then
+            setclipboard(link)
+            game:GetService('StarterGui'):SetCore('SendNotification', {
+                Title = 'Key Link Copied',
+                Text = 'Key link copied to clipboard.',
                 Duration = 5
             })
         else
@@ -210,38 +176,7 @@ LeftGroupBox:AddButton({
                 Duration = 5
             })
         end
-    end,
-    Tooltip = 'Click to copy the key link to clipboard.',
+    end
 })
 
--- 🔐 "Check Key" Input Box
-LeftGroupBox:AddInput('KeyInput', {
-    Text = 'Enter Key',
-    Placeholder = 'Enter your key here...',
-    Finished = true,
-    Callback = function(Value)
-        local success = verifyKey(Value)
-        if success then
-            game:GetService('StarterGui'):SetCore('SendNotification', {
-                Title = 'Success',
-                Text = 'Key is valid! Running the script...',
-                Duration = 5
-            })
-            print('Key verified. Access granted!')
-        else
-            game:GetService('StarterGui'):SetCore('SendNotification', {
-                Title = 'Error',
-                Text = 'Invalid key!',
-                Duration = 5
-            })
-            print('Invalid key. Access denied!')
-        end
-    end,
-    Tooltip = 'Input your key and press Enter to check.',
-})
-
-Library:OnUnload(function()
-    print('Sterling Hub Unloaded!')
-end)
-
-SaveManager:Load()  -- To load previously saved settings if applicable
+Window:SelectTab(1)  -- Automatically select the first tab
