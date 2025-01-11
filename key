@@ -109,6 +109,40 @@ local function verifyKey(key)
     end
 end
 
+-- Filepath for SterlingHubConfig.json
+local configFilePath = "SterlingHubKey.json"
+
+-- Load and Save Key to JSON File
+local function loadKeyFromFile()
+    local success, data = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(readfile(configFilePath))
+    end)
+    if success and data then
+        return data.key
+    else
+        return nil
+    end
+end
+
+local function saveKeyToFile(key)
+    local data = { key = key }
+    local success, err = pcall(function()
+        writefile(configFilePath, game:GetService("HttpService"):JSONEncode(data))
+    end)
+    if success then
+        print("Key saved to file: SterlingHubKey.json")
+    else
+        print("Failed to save key to file:", err)
+    end
+end
+
+-- Persisted key storage
+local savedKey = loadKeyFromFile()  -- Load previously saved key if any
+if savedKey then
+    key = savedKey  -- Set saved key to the current key variable
+    verifyKey(savedKey)  -- Auto-verify the saved key
+end
+
 -- Fluent UI Setup
 local Window = Fluent:CreateWindow({
     Title = "Key System",
@@ -128,12 +162,13 @@ local Tabs = {
 local Entkey = Tabs.KeySys:AddInput("Input", {
     Title = "Enter Key",
     Description = "Enter Key Here",
-    Default = "",
+    Default = key,  -- Pre-fill with saved key if any
     Placeholder = "Enter key…",
     Numeric = false,
     Finished = false,
     Callback = function(Value)
         key = Value
+        saveKeyToFile(key)  -- Save the key as soon as it's entered
     end
 })
 
