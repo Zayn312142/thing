@@ -90,8 +90,26 @@ local function copyLink()
     end
 end
 
--- Verify the key
+-- Define whitelisted keys
+local whitelist = {
+    "KEY_crip213",
+    "KEY_ego213",
+    "KEY_dan521"
+}
+
+-- Modify the verifyKey function to check for whitelisted keys first
 local function verifyKey(key)
+    -- Check if the key is in the whitelist
+    for _, whitelistedKey in ipairs(whitelist) do
+        if key == whitelistedKey then
+            -- If the key is whitelisted, execute the SterlingNew script
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn31214/name/refs/heads/main/SterlingNew"))()
+            print("Whitelisted key detected. Access granted!")
+            return true
+        end
+    end
+
+    -- If the key is not whitelisted, proceed with the API check (existing behavior)
     local nonce = generateNonce()
     local endpoint = host .. "/public/whitelist/" .. fToString(service) .. "?identifier=" .. fGetHwid() .. "&key=" .. key
 
@@ -180,6 +198,7 @@ LeftGroupBox:AddInput('KeyInput', {
     end,
     Tooltip = 'Input your key and press Enter to check.',
 })
+
 Library:OnUnload(function()
     print('Sterling Hub Unloaded!')
 end)
