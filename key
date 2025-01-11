@@ -31,19 +31,27 @@ local function cacheLink()
             }
         })
 
+        -- Debug the API request
+        if response then
+            print("Response Status:", response.StatusCode)
+            print("Response Body:", response.Body)
+        else
+            print("HTTP Request Failed.")
+            return false, "HTTP request failed."
+        end
+
         if response.StatusCode == 200 then
             local decoded = game:GetService('HttpService'):JSONDecode(response.Body)
-
             if decoded.success then
                 cachedLink = decoded.data.url
                 cachedTime = fOsTime()
                 return true, cachedLink
             else
-                print(decoded.message)
+                print("API Error:", decoded.message)
                 return false, decoded.message
             end
         else
-            print("Failed to cache link.")
+            print("HTTP Request Failed: Status Code", response.StatusCode)
             return false, "Failed to cache link"
         end
     else
@@ -67,17 +75,14 @@ local whitelist = {
 }
 
 local function verifyKey(key)
-    -- Check if the key is in the whitelist
     for _, whitelistedKey in ipairs(whitelist) do
         if key == whitelistedKey then
-            -- If the key is whitelisted, execute the SterlingNew script
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
             print("Whitelisted key detected. Access granted!")
             return true
         end
     end
 
-    -- If the key is not whitelisted, proceed with the API check (existing behavior)
     local nonce = generateNonce()
     local endpoint = host .. "/public/whitelist/" .. fToString(service) .. "?identifier=" .. fGetHwid() .. "&key=" .. key
 
@@ -88,10 +93,8 @@ local function verifyKey(key)
 
     if response.StatusCode == 200 then
         local decoded = game:GetService('HttpService'):JSONDecode(response.Body)
-
         if decoded.success then
             if decoded.data.valid then
-                -- Key is valid, execute the SterlingNew script
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
                 print("Valid key detected. Access granted!")
                 return true
@@ -100,47 +103,13 @@ local function verifyKey(key)
                 return false
             end
         else
-            print(decoded.message)
+            print("API Error:", decoded.message)
             return false
         end
     else
-        print("Server error.")
+        print("Server error. Status Code:", response.StatusCode)
         return false
     end
-end
-
--- Filepath for SterlingHubConfig.json
-local configFilePath = "SterlingHubKey.json"
-
--- Load and Save Key to JSON File
-local function loadKeyFromFile()
-    local success, data = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(readfile(configFilePath))
-    end)
-    if success and data then
-        return data.key
-    else
-        return nil
-    end
-end
-
-local function saveKeyToFile(key)
-    local data = { key = key }
-    local success, err = pcall(function()
-        writefile(configFilePath, game:GetService("HttpService"):JSONEncode(data))
-    end)
-    if success then
-        print("Key saved to file: SterlingHubKey.json")
-    else
-        print("Failed to save key to file:", err)
-    end
-end
-
--- Persisted key storage
-local savedKey = loadKeyFromFile()  -- Load previously saved key if any
-if savedKey then
-    key = savedKey  -- Set saved key to the current key variable
-    verifyKey(savedKey)  -- Auto-verify the saved key
 end
 
 -- Fluent UI Setup
@@ -162,13 +131,12 @@ local Tabs = {
 local Entkey = Tabs.KeySys:AddInput("Input", {
     Title = "Enter Key",
     Description = "Enter Key Here",
-    Default = key,  -- Pre-fill with saved key if any
+    Default = "",
     Placeholder = "Enter key…",
     Numeric = false,
     Finished = false,
     Callback = function(Value)
         key = Value
-        saveKeyToFile(key)  -- Save the key as soon as it's entered
     end
 })
 
@@ -179,7 +147,7 @@ Tabs.KeySys:AddButton({
     Callback = function()
         if verifyKey(key) then
             print("Key is valid!")
-            Fluent:Unload()  -- Unload the Fluent UI window after key verification
+            Fluent:Unload()
         else
             print("Key is invalid")
             game:GetService('StarterGui'):SetCore('SendNotification', {
@@ -191,13 +159,14 @@ Tabs.KeySys:AddButton({
     end
 })
 
--- "Get Key" Button (for copying link or generating key)
+-- "Get Key" Button
 Tabs.KeySys:AddButton({
     Title = "Get Key",
     Description = "Get Key here",
     Callback = function()
         local success, link = cacheLink()
         if success then
+            print("Key Link:", link)
             setclipboard(link)
             game:GetService('StarterGui'):SetCore('SendNotification', {
                 Title = 'Key Link Copied',
@@ -205,6 +174,7 @@ Tabs.KeySys:AddButton({
                 Duration = 5
             })
         else
+            print("Failed to generate key link.")
             game:GetService('StarterGui'):SetCore('SendNotification', {
                 Title = 'Error',
                 Text = 'Failed to generate key link.',
@@ -214,4 +184,4 @@ Tabs.KeySys:AddButton({
     end
 })
 
-Window:SelectTab(1)  -- Automatically select the first tab
+Window:SelectTab(1)
