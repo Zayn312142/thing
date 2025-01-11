@@ -1,0 +1,187 @@
+-- Linoria Hub Setup
+local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
+
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+
+local Window = Library:CreateWindow({
+    Title = 'Key System Example',
+    Center = true,
+    AutoShow = true,
+})
+
+-- Tabs Setup
+local Tabs = {
+    Main = Window:AddTab('Main'),
+    ['UI Settings'] = Window:AddTab('UI Settings')
+}
+
+-- UI Settings Tab (can be used for more UI configurations)
+local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Settings')
+MenuGroup:AddButton('Unload', function() Library:Unload() end)
+Library.ToggleKeybind = Options.MenuKeybind -- Custom keybind for the menu
+
+local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Authentication')
+
+-- Platoboost configuration
+local service = 1095 -- Your service id [IMPORTANT]
+local secret = "92a9fbaf-cc2d-4afc-89f5-d0d0c8392241" -- Secret key
+local useNonce = true -- Use nonce to prevent replay attacks
+
+-- Internal functions
+local fRequest, fStringFormat, fStringChar, fToString, fStringSub, fOsTime, fMathRandom, fMathFloor, fGetHwid = request or http.request or http_request or syn.request, string.format, string.char, tostring, string.sub, os.time, math.random, math.floor, gethwid or function() return game:GetService("Players").LocalPlayer.UserId end
+
+local host = "https://api.platoboost.com"
+local cachedLink, cachedTime = "", 0
+
+-- Cache the link
+local function cacheLink()
+    if cachedTime + (10 * 60) < fOsTime() then
+        local response = fRequest({
+            Url = host .. "/public/start",
+            Method = "POST",
+            Body = game:GetService('HttpService'):JSONEncode({
+                service = service,
+                identifier = fGetHwid()
+            }),
+            Headers = {
+                ["Content-Type"] = "application/json"
+            }
+        })
+
+        if response.StatusCode == 200 then
+            local decoded = game:GetService('HttpService'):JSONDecode(response.Body)
+
+            if decoded.success then
+                cachedLink = decoded.data.url
+                cachedTime = fOsTime()
+                return true, cachedLink
+            else
+                print(decoded.message)
+                return false, decoded.message
+            end
+        elseif response.StatusCode == 429 then
+            print("You are being rate limited, please wait 20 seconds and try again.")
+            return false, "Rate limited"
+        else
+            print("Failed to cache link.")
+            return false, "Failed to cache link"
+        end
+    else
+        return true, cachedLink
+    end
+end
+
+-- Generate nonce
+local function generateNonce()
+    local str = ""
+    for _ = 1, 16 do
+        str = str .. fStringChar(fMathFloor(fMathRandom() * (122 - 97 + 1)) + 97)
+    end
+    return str
+end
+
+-- Copy link to clipboard
+local function copyLink()
+    local success, link = cacheLink()
+    if success then
+        setclipboard(link)
+    end
+end
+
+-- Verify the key
+local function verifyKey(key)
+    local nonce = generateNonce()
+    local endpoint = host .. "/public/whitelist/" .. fToString(service) .. "?identifier=" .. fGetHwid() .. "&key=" .. key
+
+    if useNonce then
+        endpoint = endpoint .. "&nonce=" .. nonce
+    end
+
+    local response = fRequest({
+        Url = endpoint,
+        Method = "GET",
+    })
+
+    if response.StatusCode == 200 then
+        local decoded = game:GetService('HttpService'):JSONDecode(response.Body)
+
+        if decoded.success then
+            if decoded.data.valid then
+                -- Key is valid, execute the SterlingNew script
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn31214/name/refs/heads/main/SterlingNew"))()
+                return true
+            else
+                print("Key is invalid.")
+                return false
+            end
+        else
+            print(decoded.message)
+            return false
+        end
+    elseif response.StatusCode == 429 then
+        print("You are being rate limited, please wait 20 seconds and try again.")
+        return false
+    else
+        print("Server returned an invalid status code, please try again later.")
+        return false
+    end
+end
+
+-- Create GUI Buttons
+local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Authentication')
+
+-- 🔑 "Get Key" Button
+LeftGroupBox:AddButton({
+    Text = 'Get Key',
+    Func = function()
+        local success, link = cacheLink() -- Get the cached key link
+        if success then
+            setclipboard(link) -- Copy link to clipboard
+            game:GetService('StarterGui'):SetCore('SendNotification', {
+                Title = 'Key System',
+                Text = 'Key link copied to clipboard!',
+                Duration = 5
+            })
+        else
+            game:GetService('StarterGui'):SetCore('SendNotification', {
+                Title = 'Error',
+                Text = 'Failed to generate key link.',
+                Duration = 5
+            })
+        end
+    end,
+    Tooltip = 'Click to copy the key link to clipboard.',
+})
+
+-- 🔐 "Check Key" Input Box
+LeftGroupBox:AddInput('KeyInput', {
+    Text = 'Enter Key',
+    Placeholder = 'Enter your key here...',
+    Finished = true,
+    Callback = function(Value)
+        local success = verifyKey(Value)
+        if success then
+            game:GetService('StarterGui'):SetCore('SendNotification', {
+                Title = 'Success',
+                Text = 'Key is valid! Running the script...',
+                Duration = 5
+            })
+            print('Key verified. Access granted!')
+        else
+            game:GetService('StarterGui'):SetCore('SendNotification', {
+                Title = 'Error',
+                Text = 'Invalid key!',
+                Duration = 5
+            })
+            print('Invalid key. Access denied!')
+        end
+    end,
+    Tooltip = 'Input your key and press Enter to check.',
+})
+Library:OnUnload(function()
+    print('Sterling Hub Unloaded!')
+end)
+
+SaveManager:Load()  -- To load previously saved settings if applicable
