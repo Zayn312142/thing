@@ -14,13 +14,14 @@ local Window = Library:CreateWindow({
 -- Tabs Setup
 local Tabs = {
     Main = Window:AddTab('Main'),
-    ['UI Settings'] = Window:AddTab('UI Settings')
 }
 
--- UI Settings Tab (can be used for more UI configurations)
-local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Settings')
-MenuGroup:AddButton('Unload', function() Library:Unload() end)
-Library.ToggleKeybind = Options.MenuKeybind -- Custom keybind for the menu
+-- Add Unload Button to Main Tab
+local MainMenuGroup = Tabs.Main:AddLeftGroupbox('Main Settings')
+MainMenuGroup:AddButton('Unload', function() 
+    Library:Unload() 
+end)
+
 
 local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Authentication')
 
@@ -97,14 +98,45 @@ local whitelist = {
     "KEY_dan521"
 }
 
+-- Filepath for SterlingHubConfig.json
+local configFilePath = "SterlingHubKey.json"
+
+-- Load and Save Key to JSON File
+local function loadKeyFromFile()
+    local success, data = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(readfile(configFilePath))
+    end)
+    if success and data then
+        return data.key
+    else
+        return nil
+    end
+end
+
+local function saveKeyToFile(key)
+    local data = { key = key }
+    local success, err = pcall(function()
+        writefile(configFilePath, game:GetService("HttpService"):JSONEncode(data))
+    end)
+    if success then
+        print("Key saved to file: SterlingHubKey.json")
+    else
+        print("Failed to save key to file:", err)
+    end
+end
+
+-- Persisted key storage
+local savedKey = loadKeyFromFile()  -- Load previously saved key if any
+
 -- Modify the verifyKey function to check for whitelisted keys first
 local function verifyKey(key)
     -- Check if the key is in the whitelist
     for _, whitelistedKey in ipairs(whitelist) do
         if key == whitelistedKey then
             -- If the key is whitelisted, execute the SterlingNew script
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn31214/name/refs/heads/main/SterlingNew"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
             print("Whitelisted key detected. Access granted!")
+            saveKeyToFile(key)  -- Save the valid key
             return true
         end
     end
@@ -128,7 +160,9 @@ local function verifyKey(key)
         if decoded.success then
             if decoded.data.valid then
                 -- Key is valid, execute the SterlingNew script
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn31214/name/refs/heads/main/SterlingNew"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
+                print("Valid key detected. Access granted!")
+                saveKeyToFile(key)  -- Save the valid key
                 return true
             else
                 print("Key is invalid.")
@@ -145,6 +179,11 @@ local function verifyKey(key)
         print("Server returned an invalid status code, please try again later.")
         return false
     end
+end
+
+-- Automatically use the saved key if available
+if savedKey and verifyKey(savedKey) then
+    print("Using saved key: " .. savedKey)
 end
 
 -- Create GUI Buttons
