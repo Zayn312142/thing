@@ -128,7 +128,6 @@ end
 -- Persisted key storage
 local savedKey = loadKeyFromFile()  -- Load previously saved key if any
 
--- Modify the verifyKey function to check for whitelisted keys first
 local function verifyKey(key)
     -- Check if the key is in the whitelist
     for _, whitelistedKey in ipairs(whitelist) do
@@ -137,6 +136,7 @@ local function verifyKey(key)
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
             print("Whitelisted key detected. Access granted!")
             saveKeyToFile(key)  -- Save the valid key
+            Library:Unload()  -- Unload Linoria Hub after verification
             return true
         end
     end
@@ -163,6 +163,7 @@ local function verifyKey(key)
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
                 print("Valid key detected. Access granted!")
                 saveKeyToFile(key)  -- Save the valid key
+                Library:Unload()  -- Unload Linoria Hub after verification
                 return true
             else
                 print("Key is invalid.")
@@ -180,6 +181,7 @@ local function verifyKey(key)
         return false
     end
 end
+
 
 -- Automatically use the saved key if available
 if savedKey and verifyKey(savedKey) then
