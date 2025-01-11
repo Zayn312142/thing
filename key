@@ -65,15 +65,6 @@ local function cacheLink()
             }
         })
 
-        -- Debug the API request
-        if response then
-            print("Response Status:", response.StatusCode)
-            print("Response Body:", response.Body)
-        else
-            print("HTTP Request Failed.")
-            return false, "HTTP request failed."
-        end
-
         if response.StatusCode == 200 then
             local decoded = game:GetService('HttpService'):JSONDecode(response.Body)
             if decoded.success then
@@ -92,6 +83,7 @@ local function cacheLink()
         return true, cachedLink
     end
 end
+
 
 local function generateNonce()
     local str = ""
