@@ -3,7 +3,41 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 
 local key = ""
 
--- Plato API Setup (replace these with your actual values)
+-- Filepath for SterlingHubKey.json
+local configFilePath = "SterlingHubKey.json"
+
+-- Load and Save Key to JSON File
+local function loadKeyFromFile()
+    local success, data = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(readfile(configFilePath))
+    end)
+    if success and data then
+        return data.key
+    else
+        return nil
+    end
+end
+
+local function saveKeyToFile(key)
+    local data = { key = key }
+    local success, err = pcall(function()
+        writefile(configFilePath, game:GetService("HttpService"):JSONEncode(data))
+    end)
+    if success then
+        print("Key saved to file: SterlingHubKey.json")
+    else
+        print("Failed to save key to file:", err)
+    end
+end
+
+-- Load saved key if it exists
+local savedKey = loadKeyFromFile()
+if savedKey then
+    key = savedKey
+    print("Loaded saved key:", key)
+end
+
+-- Plato API Setup
 local service = 1095  -- Your service ID
 local secret = "92a9fbaf-cc2d-4afc-89f5-d0d0c8392241"  -- Your secret key
 local host = "https://api.platoboost.com"
@@ -97,6 +131,7 @@ local function verifyKey(key)
             if decoded.data.valid then
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
                 print("Valid key detected. Access granted!")
+                saveKeyToFile(key)
                 return true
             else
                 print("Key is invalid.")
@@ -131,12 +166,13 @@ local Tabs = {
 local Entkey = Tabs.KeySys:AddInput("Input", {
     Title = "Enter Key",
     Description = "Enter Key Here",
-    Default = "",
+    Default = savedKey or "",
     Placeholder = "Enter key…",
     Numeric = false,
     Finished = false,
     Callback = function(Value)
         key = Value
+        saveKeyToFile(key)  -- Save the key whenever the user enters it
     end
 })
 
@@ -185,3 +221,9 @@ Tabs.KeySys:AddButton({
 })
 
 Window:SelectTab(1)
+
+-- Auto-check the loaded key if available
+if savedKey then
+    print("Auto-checking saved key:", savedKey)
+    verifyKey(savedKey)
+end
