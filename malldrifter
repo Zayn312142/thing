@@ -36,6 +36,17 @@ local Tab = Window:CreateTab({
     ShowTitle = true
 })
 
+-- 🛠️ Slider for Points
+local Slider = Tab:CreateSlider({
+    Name = "Points to Give",
+    Range = {0, 250000}, -- Set the range to 0 - 250,000
+    Increment = 1000, -- Increments of 1,000 points
+    CurrentValue = 0, -- Start at 0
+    Callback = function(value)
+        print("Selected points:", value)
+    end
+}, "PointsSlider")
+
 -- 🛠️ Button to Send Points
 Tab:CreateButton({
     Name = "Give Points",
