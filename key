@@ -154,6 +154,34 @@ local Tabs = {
     KeySys = Window:AddTab({ Title = "Key System", Icon = "key" }),
 }
 
+-- Add the check for Luna UI and destroy Fluent UI if necessary
+local function checkForLunaUIAndDestroyFluent()
+    for _, gui in ipairs(game:GetService("CoreGui"):GetChildren()) do
+        if gui:IsA("ScreenGui") and gui.Name == "Luna UI" then  -- Replace "Luna UI" with the actual name of the Luna UI
+            print("Luna UI detected. Destroying Fluent UI.")
+            local fluentGui = nil
+            for _, child in ipairs(game:GetService("CoreGui"):GetChildren()) do
+                if child:IsA("ScreenGui") and child.Name == "ScreenGui" then
+                    if child:FindFirstChild("Frame") then  -- Adjust this if needed based on Fluent UI's structure
+                        fluentGui = child
+                        break
+                    end
+                end
+            end
+            if fluentGui then
+                fluentGui:Destroy()
+                print("Fluent UI has been destroyed.")
+            else
+                print("Fluent UI not found.")
+            end
+            break  -- Stop checking after Luna UI is found
+        end
+    end
+end
+
+-- Call this function after Fluent UI initialization
+checkForLunaUIAndDestroyFluent()
+
 -- Create the Key Input Box
 local Entkey = Tabs.KeySys:AddInput("Input", {
     Title = "Enter Key",
@@ -175,7 +203,30 @@ Tabs.KeySys:AddButton({
     Callback = function()
         if verifyKey(key) then
             print("Key is valid!")
-            Fluent:Unload()
+
+            -- Wait a short period for the UI to finish loading
+            wait(1)
+
+            -- Search for Fluent UI ScreenGui in CoreGui
+            local fluentGui = nil
+            for _, gui in ipairs(game:GetService("CoreGui"):GetChildren()) do
+                if gui:IsA("ScreenGui") and gui.Name == "ScreenGui" then
+                    print("Found ScreenGui in CoreGui:", gui)  -- Debugging: Confirm if it's found
+                    if gui:FindFirstChild("Frame") then
+                        fluentGui = gui
+                        break
+                    end
+                end
+            end
+
+            -- If Fluent UI ScreenGui is found, destroy it
+            if fluentGui then
+                fluentGui:Destroy()
+                print("Fluent UI has been removed.")
+            else
+                print("Fluent UI ScreenGui not found or missing Frame.")
+            end
+
         else
             print("Key is invalid")
             game:GetService('StarterGui'):SetCore('SendNotification', {
@@ -186,6 +237,8 @@ Tabs.KeySys:AddButton({
         end
     end
 })
+
+
 
 -- "Get Key" Button
 Tabs.KeySys:AddButton({
