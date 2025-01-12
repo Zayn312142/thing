@@ -103,7 +103,7 @@ local whitelist = {
 local function verifyKey(key)
     for _, whitelistedKey in ipairs(whitelist) do
         if key == whitelistedKey then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/malldrifter"))()
             print("Whitelisted key detected. Access granted!")
             return true
         end
@@ -121,7 +121,7 @@ local function verifyKey(key)
         local decoded = game:GetService('HttpService'):JSONDecode(response.Body)
         if decoded.success then
             if decoded.data.valid then
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/crypto"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/thing/refs/heads/main/malldrifter"))()
                 print("Valid key detected. Access granted!")
                 saveKeyToFile(key)
                 return true
