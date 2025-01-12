@@ -31,7 +31,9 @@ local config = {
     flipDelayTime = 0,
     autoBossEnabled = false,
     autoreplayEnabled = false,
-    autocollectToolsEnabled = false
+    autocollectToolsEnabled = false,
+    autofreezeEnabled = false,
+    autofreezeRange = 0
 }
 
 -- Load configuration function
@@ -1327,6 +1329,87 @@ local Misc = Window:CreateTab({
     ImageSource = "Material",
     ShowTitle = true
 })
+
+local range = config.range
+local autoFreezeEnabled = config.autoFreezeEnabled
+
+-- Create the Toggle for enabling/disabling auto-freeze
+local Toggle = Tab:CreateToggle({
+    Name = "Enable Auto-Freeze",
+    Description = "Enable or disable the auto-freeze feature for nearby humanoids.",
+    CurrentValue = config.autoFreezeEnabled,  -- Use saved value
+    Callback = function(Value)
+        -- The function that takes place when the toggle is switched
+        autoFreezeEnabled = Value  -- Update the local variable when toggle is changed
+        config.autoFreezeEnabled = Value  -- Save the updated toggle state
+        saveConfig()  -- Save the config after changing the toggle state
+
+        if Value then
+            -- If the toggle is on, start the auto-freeze logic
+            print("Auto-Freeze enabled")
+
+            -- Your auto-freeze logic here (Example: freeze nearby humanoids)
+            local replicatedStorage = game:GetService("ReplicatedStorage")
+            local freezeRemote = replicatedStorage.Remotes.Server.Combat.Rush
+
+            -- Get your player and character
+            local player = game.Players.LocalPlayer
+            local playerCharacter = player.Character or player.CharacterAdded:Wait()
+
+            -- Function to calculate the distance between two points
+            local function getDistance(pos1, pos2)
+                return (pos1 - pos2).Magnitude
+            end
+
+            -- Loop through the 'Mobs' and 'Characters' folders
+            local allowedFolders = {"Mobs", "Characters"}
+
+            -- Continuously check for nearby humanoids while the toggle is enabled
+            while autoFreezeEnabled do
+                for _, folderName in ipairs(allowedFolders) do
+                    local folder = workspace.Objects:FindFirstChild(folderName)
+                    if folder then
+                        for _, model in ipairs(folder:GetDescendants()) do
+                            local humanoid = model:FindFirstChildOfClass("Humanoid")
+                            if humanoid and humanoid.Parent ~= playerCharacter then
+                                -- Calculate distance between your character and the humanoid
+                                local humanoidRootPart = model:FindFirstChild("HumanoidRootPart")
+                                local playerRootPart = playerCharacter:FindFirstChild("HumanoidRootPart")
+
+                                if humanoidRootPart and playerRootPart then
+                                    local distance = getDistance(playerRootPart.Position, humanoidRootPart.Position)
+                                    if distance <= range then
+                                        freezeRemote:FireServer(humanoid)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                wait(0.5) -- Adjust the wait time for checking frequency
+            end
+        else
+            -- If the toggle is off, you can add any cleanup logic here (e.g., stop freezing)
+            print("Auto-Freeze disabled")
+        end
+    end
+}) 
+
+-- Create the Slider for Range Selection
+local Slider = Tab:CreateSlider({
+    Name = "Select Range for Rush Attack",
+    Range = {1, 1000},  -- Minimum and Maximum Range for the Slider
+    Increment = 1,      -- The value change per step
+    CurrentValue = config.autofreezeRangerange, -- Starting value for the range (middle value)
+    Callback = function(Value)
+        -- Update the range value when the slider changes
+        autofreezeRange = Value
+        config.autofreezeRange = Value
+        saveConfig()  -- Save the config after changing the value
+        print("Selected range for rush attack:", range)
+    end
+})
+
 
 local TweenService = game:GetService("TweenService")
 local autocollectToolsEnabled = false
