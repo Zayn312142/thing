@@ -1399,7 +1399,7 @@ local Toggle = Tab:CreateToggle({
 
 -- Create the Slider for Range Selection
 local Slider = Tab:CreateSlider({
-    Name = "Select Range for Rush Attack",
+    Name = "Select Range for Freezing",
     Range = {1, 1000},  -- Minimum and Maximum Range for the Slider
     Increment = 1,      -- The value change per step
     CurrentValue = config.autofreezeRange, -- Starting value for the range (middle value)
