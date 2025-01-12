@@ -1330,7 +1330,7 @@ local Misc = Window:CreateTab({
     ShowTitle = true
 })
 
-Main:CreateSection("Auto Freeze")
+Tab:CreateSection("Auto Freeze")
 
 local range = config.range
 local autoFreezeEnabled = config.autoFreezeEnabled
