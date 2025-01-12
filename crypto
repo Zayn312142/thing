@@ -93,7 +93,7 @@ local Tab = Window:CreateTab({
 })
 
 local Button = Tab:CreateButton({
-	Name = "Infinite Spin",
+	Name = "Data Rollback",
 	Description = "Click this this after u done spinnin and rejoin and dont use too much spins",
     	Callback = function()
            
