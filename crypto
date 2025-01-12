@@ -1330,6 +1330,8 @@ local Misc = Window:CreateTab({
     ShowTitle = true
 })
 
+Misc:CreateSection("Free Innate Slots, Skip Spins")
+
 local range = config.range
 local autoFreezeEnabled = config.autoFreezeEnabled
 
@@ -1400,7 +1402,7 @@ local Slider = Tab:CreateSlider({
     Name = "Select Range for Rush Attack",
     Range = {1, 1000},  -- Minimum and Maximum Range for the Slider
     Increment = 1,      -- The value change per step
-    CurrentValue = config.autofreezeRangerange, -- Starting value for the range (middle value)
+    CurrentValue = config.autofreezeRange, -- Starting value for the range (middle value)
     Callback = function(Value)
         -- Update the range value when the slider changes
         autofreezeRange = Value
