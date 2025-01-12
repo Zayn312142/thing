@@ -16,12 +16,6 @@ end
 
 -- Default configuration
 local config = {
-    instaLevelQuestEnabled = false,
-    delayTime = 0,
-    exp = 0,
-    cash = 0,
-    missionessence = 0,
-    chestMeter = 0,
     instaKillEnabled = false,
     range = 0,
     tweenToMobEnabled = false,
@@ -98,183 +92,17 @@ local Tab = Window:CreateTab({
     ShowTitle = true
 })
 
-Tab:CreateSection("Insta Level Quest")
+local Button = Tab:CreateButton({
+	Name = "Infinite Spin",
+	Description = "Click if you want your spins back and rejoin after you click",
+    	Callback = function()
+           
 
-local instaLevelQuestEnabled = false 
-local delayTime = 0 
+        local ohString1 = "\255"
 
-
-local questParams = {
-    exp = 0,
-    cash = 0,
-    essence = 0,
-    chestMeter = 0,
-}
-
-
-Tab:CreateToggle({
-    Name = "Auto Quest",
-    CurrentValue = instaLevelQuestEnabled,
-    Callback = function(State)
-        instaLevelQuestEnabled = State
-        config.instaLevelQuestEnabled = State
-        saveConfig()
-    end
+        game:GetService("ReplicatedStorage").Remotes.Server.Data.ChangeSetting:InvokeServer(ohString1)
+    	end
 })
-
-
-Tab:CreateSlider({
-    Name = "Quest Delay (Seconds)",
-    Range = {0, 10},  -- Minimum delay
-    Increment = 1,
-    CurrentValue = config.delayTime,
-    Callback = function(Value)
-        delayTime = Value
-        config.delayTime = Value
-        saveConfig()
-    end
-})
-
-
-Tab:CreateSlider({
-    Name = "EXP",
-    Range = {0, 8000000},  -- Minimum delay
-    Increment = 1,
-    CurrentValue = config.exp,
-    Callback = function(Value)
-        questParams.exp = Value
-        config.exp = Value
-        saveConfig()
-    end
-})
-
-
-Tab:CreateSlider({
-    Name = "CASH",
-    Range = {0, 50000},  -- Minimum delay
-    Increment = 1,
-    CurrentValue = config.cash,
-    Callback = function(Value)
-        questParams.cash = Value
-        config.cash = Value
-        saveConfig()
-    end
-})
-
-
-Tab:CreateSlider({
-    Name = "ESSENCE",
-    Range = {0, 25},  -- Minimum delay
-    Increment = 1,
-    CurrentValue = config.missionessence,
-    Callback = function(Value)
-        questParams.essence = Value
-        config.missionessence = Value
-        saveConfig()
-    end
-})
-
-
-Tab:CreateSlider({
-    Name = "CHEST METER",
-    Range = {0, 75},  -- Minimum delay
-    Increment = 1,
-    CurrentValue = config.chestMeter,
-    Callback = function(Value)
-        questParams.chestMeter = Value
-        config.chestMeter = Value
-        saveConfig()
-    end
-})
-
-local folder = game.Players.LocalPlayer.ReplicatedTempData  
-
-local function pressJ()
-    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.J, false, game)
-end
-
-local function checkAndFireRemote()
-    if instaLevelQuestEnabled then
-        if #folder:GetChildren() == 0 then
-            local TweenService = game:GetService("TweenService")
-
-local function Tween(Object1, Object2, Speed, Offset, Wait)
-    if Object1 and Object2 then
-        local Timing = (Object1.Position - Object2.Position).Magnitude / Speed
-        local TweenInfo = TweenInfo.new(Timing, Enum.EasingStyle.Linear)
-        local TweenSystem = TweenService:Create(Object1, TweenInfo, {CFrame = Object2.CFrame + Offset})
-        TweenSystem:Play()
-        if Wait then
-            TweenSystem.Completed:Wait()
-        end
-    end
-end
-
-local function tweenToPortal()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local missionPortal = workspace.Objects.Portals.Missions
-
-    if character and character.PrimaryPart and missionPortal then
-        local offset = Vector3.new(0, 0, 0)  
-        local speed = 10000  
-        Tween(character.PrimaryPart, missionPortal, speed, offset, true)
-    end
-end
-tweenToPortal()
-            
-            wait(delayTime)
-
-            local ohTable1 = {
-                ["type"] = "Band",
-                ["set"] = "Shijo Town Set",
-                ["rewards"] = {
-                    ["essence"] = questParams.essence,
-                    ["chestMeter"] = questParams.chestMeter,
-                    ["exp"] = questParams.exp,
-                    ["cash"] = questParams.cash
-                },
-                ["rewardsText"] = string.format("$%d | %d EXP | %d Mission Essence", questParams.cash, questParams.exp, questParams.essence),
-                ["difficulty"] = 3,
-                ["title"] = "Defeat a band",
-                ["amount"] = 1,
-                ["level"] = 420,
-                ["grade"] = "Non Sorcerer",
-                ["subtitle"] = "of 2 curse users"
-            }
-            game:GetService("ReplicatedStorage").Remotes.Server.Data.ClaimQuest:InvokeServer(ohTable1)
-        end
-    end
-end
-
-local function TrulyVisible(Frame: Instance)
-    local screenGui = Frame:FindFirstAncestorWhichIsA("ScreenGui")
-    if not screenGui or not screenGui.Enabled then
-        return false
-    end
-
-    while Frame and Frame.Parent do
-        if Frame:IsA("GuiObject") and not Frame.Visible then
-            return false
-        end
-        Frame = Frame.Parent
-    end
-
-    return true
-end
-
-local warpHint = game.Players.LocalPlayer.PlayerGui.Main.Frame.BottomMiddle.WarpHint
-
-game:GetService("RunService").Heartbeat:Connect(function()
-    if instaLevelQuestEnabled then
-        checkAndFireRemote()
-    end
-
-    if TrulyVisible(warpHint) then
-        pressJ()
-    end
-end)
-
 
 Tab:CreateSection("Instakill")
 
