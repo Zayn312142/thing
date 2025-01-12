@@ -94,7 +94,7 @@ local Tab = Window:CreateTab({
 
 local Button = Tab:CreateButton({
 	Name = "Infinite Spin",
-	Description = "Click if you want your spins back and rejoin after you click",
+	Description = "Click this if you didn't get the innate you want",
     	Callback = function()
            
 
