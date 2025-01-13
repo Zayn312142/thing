@@ -97,7 +97,12 @@ end
 local whitelist = {
     "KEY_crip213",
     "KEY_ego213",
-    "KEY_dan521"
+    "KEY_dan521",
+    "KEY_yonkiers721",
+    "KEY_rylz902",
+    "KEY_tetsuo876",
+    "KEY_kuan213",
+    "KEY_neko732",
 }
 
 local function verifyKey(key)
