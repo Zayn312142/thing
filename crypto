@@ -1757,42 +1757,6 @@ local Button = Misc:CreateButton({
     end
 })
 
-local cooldownToggled = false  -- Track cooldown state
-local function setCooldownTo0()
-    local skills = game:GetService("ReplicatedStorage"):WaitForChild("Skills")
-    for _, child in ipairs(skills:GetChildren()) do
-        if child:IsA("Folder") then
-            local cooldown = child:FindFirstChild("Cooldown")
-            if cooldown then
-                cooldown.Value = 0  -- Set cooldown to 0
-            end
-        end
-    end
-end
-
-local function resetCooldowns()  -- This function restores cooldown to default
-    local skills = game:GetService("ReplicatedStorage"):WaitForChild("Skills")
-    for _, child in ipairs(skills:GetChildren()) do
-        if child:IsA("Folder") then
-            local cooldown = child:FindFirstChild("Cooldown")
-            if cooldown then
-                cooldown.Value = 10  -- Reset cooldown to a default value (example: 10 seconds)
-            end
-        end
-    end
-end
-Misc:CreateToggle({
-    Name = "No Cooldown",
-    Callback = function()
-        if cooldownToggled then
-            resetCooldowns()  -- Restore cooldown to default
-        else
-            setCooldownTo0()  -- Set cooldown to 0
-        end
-        cooldownToggled = not cooldownToggled  -- Toggle the state
-    end
-})
-
 Misc:CreateSection("Weapon Giver")
 
 local toolName = ""
