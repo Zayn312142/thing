@@ -33,7 +33,8 @@ local config = {
     autoreplayEnabled = false,
     autocollectToolsEnabled = false,
     autofreezeEnabled = false,
-    autofreezeRange = 0
+    autofreezeRange = 0,
+    itemESPEnabled = false
 }
 
 -- Load configuration function
@@ -1404,15 +1405,17 @@ workspace.Objects.Drops.ChildAdded:Connect(function(child)
     end
 end)
 
--- Toggle UI
-Misc:CreateToggle({
-    Name = "Item ESP",
-    Description = "Toggle item ESP display.",
-    CurrentValue = false,
-    Callback = function(value)
-        toggleESP(value)
+-- Create Toggle
+local Toggle = Misc:CreateToggle({
+    Name = "Enable Item ESP",
+    Description = "Toggle the item ESP feature to display item distances and names.",
+    CurrentValue = config.itemESPEnabled,
+    Callback = function(Value)
+        config.itemESPEnabled = Value
+        toggleESP(Value) 
+        saveConfig()
     end
-}, "ItemESPToggle")
+})
 
 Tab:CreateSection("Auto Freeze")
 
