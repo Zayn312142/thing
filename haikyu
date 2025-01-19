@@ -39,7 +39,7 @@ local Tab = Window:CreateTab({
 local Slider = Tab:CreateSlider({
     Name = "Dive Speed",
     Range = {0, 5},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameDiveSpeedMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameJumpMultiplier", value)
@@ -50,7 +50,7 @@ local Slider = Tab:CreateSlider({
 local Slider = Tab:CreateSlider({
     Name = "Spike Power",
     Range = {0, 500},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSpikePowerMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameSpikePowerMultiplier", value)
@@ -61,7 +61,7 @@ local Slider = Tab:CreateSlider({
 local Slider = Tab:CreateSlider({
     Name = "Speed",
     Range = {0, 5},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSpeedMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameSpeedMultiplier", value)
@@ -72,7 +72,7 @@ local Slider = Tab:CreateSlider({
 local Slider = Tab:CreateSlider({
     Name = "Set Power",
     Range = {0, 500},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSetPowerMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameSetPowerMultiplier", value)
@@ -83,7 +83,7 @@ local Slider = Tab:CreateSlider({
 local Slider = Tab:CreateSlider({
     Name = "Serve Power",
     Range = {0, 500},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameServePowerMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameServePowerMultiplier", value)
@@ -94,7 +94,7 @@ local Slider = Tab:CreateSlider({
 local Slider = Tab:CreateSlider({
     Name = "Jump Power",
     Range = {0, 5},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameJumpPowerMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameJumpPowerMultiplier", value)
@@ -105,7 +105,7 @@ local Slider = Tab:CreateSlider({
 local Slider = Tab:CreateSlider({
     Name = "Bump Power",
     Range = {0, 500},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameBumpPowerMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameBumpPowerMultiplier", value)
@@ -116,7 +116,7 @@ local Slider = Tab:CreateSlider({
 local Slider = Tab:CreateSlider({
     Name = "Block Power",
     Range = {0, 500},
-    Increment = 1,
+    Increment = 0.1,
     CurrentValue = game.Players.LocalPlayer:GetAttribute("GameBlockPowerMultiplier") or 0,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameBlockPowerMultiplier", value)
