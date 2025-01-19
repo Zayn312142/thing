@@ -1,0 +1,125 @@
+local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/Luna-Interface-Suite/refs/heads/main/source.lua", true))()
+
+local http = game:GetService("HttpService")
+local userId = game.Players.LocalPlayer.UserId
+
+local blacklist = {1131586622, 1225643250, 1918988070}
+for _, id in pairs(blacklist) do
+    if userId == id then
+        game.Players.LocalPlayer:Kick("Access revoked from using Sterling Hub.")
+    end
+end
+
+local Window = Luna:CreateWindow({
+    Name = "Sterling Hub",
+    Subtitle = nil,
+    LogoID = "90804827107744",
+    LoadingEnabled = true,
+    LoadingTitle = "Sterling Hub",
+    LoadingSubtitle = "by DAN",
+    ConfigSettings = {
+        RootFolder = nil,
+        ConfigFolder = "Sterling Hub"
+    },
+})
+
+Window:CreateHomeTab({
+    SupportedExecutors = {},
+    DiscordInvite = "pvwpXmTmT7",
+    Icon = 1,
+})
+
+local Tab = Window:CreateTab({
+    Name = "Main",
+    Icon = "settings_input_antenna",
+    ImageSource = "Material",
+    ShowTitle = true
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Dive Speed",
+    Range = {0, 5},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameDiveSpeedMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameJumpMultiplier", value)
+        print("GameJumpMultiplier updated to " .. value)
+    end
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Spike Power",
+    Range = {0, 500},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSpikePowerMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameSpikePowerMultiplier", value)
+        print("GameSpikePowerMultiplier updated to " .. value)
+    end
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Speed",
+    Range = {0, 5},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSpeedMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameSpeedMultiplier", value)
+        print("GameSpeedMultiplier updated to " .. value)
+    end
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Set Power",
+    Range = {0, 500},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSetPowerMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameSetPowerMultiplier", value)
+        print("GameSetPowerMultiplier updated to " .. value)
+    end
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Serve Power",
+    Range = {0, 500},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameServePowerMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameServePowerMultiplier", value)
+        print("GameServePowerMultiplier updated to " .. value)
+    end
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Jump Power",
+    Range = {0, 5},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameJumpPowerMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameJumpPowerMultiplier", value)
+        print("GameJumpPowerMultiplier updated to " .. value)
+    end
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Bump Power",
+    Range = {0, 500},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameBumpPowerMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameBumpPowerMultiplier", value)
+        print("GameBumpPowerMultiplier updated to " .. value)
+    end
+})
+
+local Slider = Tab:CreateSlider({
+    Name = "Block Power",
+    Range = {0, 500},
+    Increment = 1,
+    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameBlockPowerMultiplier") or 0,
+    Callback = function(value)
+        game.Players.LocalPlayer:SetAttribute("GameBlockPowerMultiplier", value)
+        print("GameBlockPowerMultiplier updated to " .. value)
+    end
+})
