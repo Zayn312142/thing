@@ -1,5 +1,9 @@
 local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn312142/Luna-Interface-Suite/refs/heads/main/source.lua", true))()
 
+local HttpService = game:GetService("HttpService")
+
+local configFile = "SterlingHubConfig.json"
+
 local http = game:GetService("HttpService")
 local userId = game.Players.LocalPlayer.UserId
 
@@ -9,6 +13,55 @@ for _, id in pairs(blacklist) do
         game.Players.LocalPlayer:Kick("Access revoked from using Sterling Hub.")
     end
 end
+
+-- Default configuration
+local config = {
+    sethitbox = 0,
+    servehitbox = 0,
+    divehitbox = 0,
+    bumphitbox = 0,
+    blockhitbox = 0,
+    spikePower = 0,
+    diveSpeed = 0,
+    blockPower = 0,
+    bumpPower = 0,
+    servePower = 0,
+    jumpPower = 0,
+    speed = 0,
+    setPower = 0
+
+    
+}
+
+-- Load configuration function
+local function loadConfig()
+    if isfile(configFile) then
+        local data = readfile(configFile)
+        local success, result = pcall(function()
+            return game:GetService("HttpService"):JSONDecode(data)
+        end)
+        if success then
+            for k, v in pairs(result) do
+                config[k] = v  -- Update config fields directly
+            end
+        end
+    end
+end
+
+local function saveConfig()
+    local data = game:GetService("HttpService"):JSONEncode(config)  -- Encode the config directly
+    writefile(configFile, data)
+end
+
+-- Save configuration function
+local function saveConfig()
+    local data = game:GetService("HttpService"):JSONEncode(config)  -- Encode the config directly
+    writefile(configFile, data)
+end
+
+-- Auto-load configuration on script start
+loadConfig()
+
 
 local Window = Luna:CreateWindow({
     Name = "Sterling Hub",
@@ -40,21 +93,26 @@ local Slider = Tab:CreateSlider({
     Name = "Dive Speed",
     Range = {0, 5},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameDiveSpeedMultiplier") or 0,
+    CurrentValue = config.diveSpeed,
     Callback = function(value)
-        game.Players.LocalPlayer:SetAttribute("GameJumpMultiplier", value)
-        print("GameJumpMultiplier updated to " .. value)
+        game.Players.LocalPlayer:SetAttribute("GameDiveSpeedMultiplier", value)
+        print("Dive Speed updated to " .. value)
+        config.diveSpeed = value 
+        saveConfig()
     end
 })
+
 
 local Slider = Tab:CreateSlider({
     Name = "Spike Power",
     Range = {0, 500},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSpikePowerMultiplier") or 0,
+    CurrentValue = config.spikePower,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameSpikePowerMultiplier", value)
-        print("GameSpikePowerMultiplier updated to " .. value)
+        print("Spike Power updated to " .. value)
+        config.spikePower = value 
+        saveConfig()
     end
 })
 
@@ -62,10 +120,12 @@ local Slider = Tab:CreateSlider({
     Name = "Speed",
     Range = {0, 5},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSpeedMultiplier") or 0,
+    CurrentValue = config.speed,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameSpeedMultiplier", value)
-        print("GameSpeedMultiplier updated to " .. value)
+        print("Speed updated to " .. value)
+        config.speed = value
+        saveConfig()
     end
 })
 
@@ -73,10 +133,12 @@ local Slider = Tab:CreateSlider({
     Name = "Set Power",
     Range = {0, 500},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameSetPowerMultiplier") or 0,
+    CurrentValue = config.setPower,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameSetPowerMultiplier", value)
-        print("GameSetPowerMultiplier updated to " .. value)
+        print("Set Power updated to " .. value)
+        config.setPower = value
+        saveConfig()
     end
 })
 
@@ -84,10 +146,12 @@ local Slider = Tab:CreateSlider({
     Name = "Serve Power",
     Range = {0, 500},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameServePowerMultiplier") or 0,
+    CurrentValue = config.servePower,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameServePowerMultiplier", value)
-        print("GameServePowerMultiplier updated to " .. value)
+        print("Serve Power updated to " .. value)
+        config.servePower = value
+        saveConfig()
     end
 })
 
@@ -95,10 +159,12 @@ local Slider = Tab:CreateSlider({
     Name = "Jump Power",
     Range = {0, 5},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameJumpPowerMultiplier") or 0,
+    CurrentValue = config.jumpPower,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameJumpPowerMultiplier", value)
-        print("GameJumpPowerMultiplier updated to " .. value)
+        print("Jump Power updated to " .. value)
+        config.jumpPower = value
+        saveConfig()
     end
 })
 
@@ -106,10 +172,12 @@ local Slider = Tab:CreateSlider({
     Name = "Bump Power",
     Range = {0, 500},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameBumpPowerMultiplier") or 0,
+    CurrentValue = config.bumpPower,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameBumpPowerMultiplier", value)
-        print("GameBumpPowerMultiplier updated to " .. value)
+        print("Bump Power updated to " .. value)
+        config.bumpPower = value
+        saveConfig()    
     end
 })
 
@@ -117,10 +185,12 @@ local Slider = Tab:CreateSlider({
     Name = "Block Power",
     Range = {0, 500},
     Increment = 0.1,
-    CurrentValue = game.Players.LocalPlayer:GetAttribute("GameBlockPowerMultiplier") or 0,
+    CurrentValue = config.blockPower,
     Callback = function(value)
         game.Players.LocalPlayer:SetAttribute("GameBlockPowerMultiplier", value)
-        print("GameBlockPowerMultiplier updated to " .. value)
+        print("Block Power updated to " .. value)
+        config.blockPower = value
+        saveConfig()    
     end
 })
 
@@ -135,7 +205,7 @@ local Slider = Hitbox:CreateSlider({
     Name = "Spike Hitbox Size",
     Range = {1, 100}, -- Adjust the range as needed
     Increment = 0.1,
-    CurrentValue = game:GetService("ReplicatedStorage").Assets.Hitboxes.Spike.Part.Size.X, -- Default to the current size of Part (X)
+    CurrentValue = config.spikehitbox, 
     Callback = function(value)
         local spikeHitbox = game:GetService("ReplicatedStorage").Assets.Hitboxes.Spike
         local part = spikeHitbox:FindFirstChild("Part") -- Ensure we get the correct Part
@@ -154,7 +224,7 @@ local Slider = Hitbox:CreateSlider({
     Name = "Set Hitbox Size",
     Range = {1, 100}, -- Adjust the range as needed
     Increment = 0.1,
-    CurrentValue = game:GetService("ReplicatedStorage").Assets.Hitboxes.Set.Part.Size.X, -- Default to the current size of Part (X)
+    CurrentValue = config.sethitbox,
     Callback = function(value)
         local setHitbox = game:GetService("ReplicatedStorage").Assets.Hitboxes.Set
         local part = setHitbox:FindFirstChild("Part") -- Ensure we get the correct Part
@@ -173,7 +243,7 @@ local Slider = Hitbox:CreateSlider({
     Name = "Serve Hitbox Size",
     Range = {1, 100}, -- Adjust the range as needed
     Increment = 0.1,
-    CurrentValue = game:GetService("ReplicatedStorage").Assets.Hitboxes.Serve.Part.Size.X, -- Default to the current size of Part (X)
+    CurrentValue = config.servehitbox,
     Callback = function(value)
         local serveHitbox = game:GetService("ReplicatedStorage").Assets.Hitboxes.Serve
         local part = serveHitbox:FindFirstChild("Part") -- Ensure we get the correct Part
@@ -192,7 +262,7 @@ local Slider = Hitbox:CreateSlider({
     Name = "Dive Hitbox Size",
     Range = {1, 100}, -- Adjust the range as needed
     Increment = 0.1,
-    CurrentValue = game:GetService("ReplicatedStorage").Assets.Hitboxes.Dive.Part.Size.X, -- Default to the current size of Part (X)
+    CurrentValue = config.divehitbox,
     Callback = function(value)
         local diveHitbox = game:GetService("ReplicatedStorage").Assets.Hitboxes.Dive
         local part = diveHitbox:FindFirstChild("Part") -- Ensure we get the correct Part
@@ -211,7 +281,7 @@ local Slider = Hitbox:CreateSlider({
     Name = "Bump Hitbox Size",
     Range = {1, 100}, -- Adjust the range as needed
     Increment = 0.1,
-    CurrentValue = game:GetService("ReplicatedStorage").Assets.Hitboxes.Bump.Part.Size.X, -- Default to the current size of Part (X)
+    CurrentValue = config.bumphitbox,
     Callback = function(value)
         local bumpHitbox = game:GetService("ReplicatedStorage").Assets.Hitboxes.Bump
         local part = bumpHitbox:FindFirstChild("Part") -- Ensure we get the correct Part
@@ -230,7 +300,7 @@ local Slider = Hitbox:CreateSlider({
     Name = "Block Hitbox Size",
     Range = {1, 100}, -- Adjust the range as needed
     Increment = 0.1,
-    CurrentValue = game:GetService("ReplicatedStorage").Assets.Hitboxes.Block.Part.Size.X, -- Default to the current size of Part (X)
+    CurrentValue = config.blockhitbox,
     Callback = function(value)
         local blockHitbox = game:GetService("ReplicatedStorage").Assets.Hitboxes.Block
         local part = blockHitbox:FindFirstChild("Part") -- Ensure we get the correct Part
