@@ -80,7 +80,7 @@ Window:CreateHomeTab({
 
 local Tab = Window:CreateTab({
     Name = "Main",
-    Icon = "settings_input_antenna",
+    Icon = "autorenew",
     ImageSource = "Material",
     ShowTitle = true
 })
@@ -230,7 +230,7 @@ local Slider = Tab:CreateSlider({
 
 local Hitbox = Window:CreateTab({
     Name = "Hitboxes",
-    Icon = "settings_input_antenna",
+    Icon = "settings",
     ImageSource = "Material",
     ShowTitle = true
 })
