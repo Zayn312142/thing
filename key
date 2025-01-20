@@ -102,8 +102,7 @@ local whitelist = {
     "KEY_rylz902",
     "KEY_tetsuo876",
     "KEY_kuan213",
-    "KEY_neko732",
-    "KEY_7leaf982"
+    "KEY_neko732"
 }
 
 local function verifyKey(key)
