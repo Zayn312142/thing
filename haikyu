@@ -16,14 +16,14 @@ end
 
 -- Default configuration
 local config = {
-    spikePower = 0,
-    diveSpeed = 0,
-    blockPower = 0,
-    bumpPower = 0,
-    servePower = 0,
-    jumpPower = 0,
-    speed = 0,
-    setPower = 0,
+    spikePower = 1,
+    diveSpeed = 1,
+    blockPower = 1,
+    bumpPower = 1,
+    servePower = 1,
+    jumpPower = 1,
+    speed = 1,
+    setPower = 1,
     powerfulServeEnabled = false
 
     
