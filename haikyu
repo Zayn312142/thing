@@ -2,7 +2,7 @@ local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Zayn3121
 
 local HttpService = game:GetService("HttpService")
 
-local configFile = "SterlingHubConfig.json"
+local configFile = "SterlingHubHaikyuuConfig.json"
 
 local http = game:GetService("HttpService")
 local userId = game.Players.LocalPlayer.UserId
