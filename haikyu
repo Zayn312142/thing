@@ -350,3 +350,71 @@ local Slider = Hitbox:CreateSlider({
         end
     end
 })
+
+local Spin = Window:CreateTab({
+    Name = "Auto Spin",
+    Icon = "shopping_cart",
+    ImageSource = "Material",
+    ShowTitle = true
+})
+
+local autoSpin = false 
+
+local Toggle = Spin:CreateToggle({
+	Name = "Auto Spin",
+	Description = nil,
+	CurrentValue = false,
+	Callback = function(Value)
+		autoSpin = Value 
+		if autoSpin then
+			print("Auto Spin Enabled")
+			startAutoSpin()
+		else
+			print("Auto Spin Disabled")
+		end
+	end
+})
+
+local desiredStyle = "Hinata" 
+
+local Dropdown = Spin:CreateDropdown({
+	Name = "Select Desired Style",
+	Description = "Choose your desired style",
+	Options = {"Oikawa", "Bokuto", "Kageyama", "Sawamura", "Ushijima", "Kozume", "Kuroo", "Yamamoto", "Azumane", "Yaku", "Hinata"},
+	CurrentOption = {"Hinata"},
+	MultipleOptions = true,
+	SpecialType = nil,
+	Callback = function(Option)
+		desiredStyle = Option -- Update the selected style
+		print("Selected Style:", desiredStyle)
+	end
+})
+
+-- Function to Display Notification
+function showNotification(styleName)
+	Luna:Notification({
+		Title = "Style Obtained!",
+		Icon = "check_circle", -- You can use other Material icons
+		ImageSource = "Material",
+		Content = "You successfully obtained the style: " .. styleName,
+	})
+end
+
+-- Function to Perform Auto Spin
+function startAutoSpin()
+	coroutine.wrap(function()
+		while autoSpin do
+			local int1 = game:GetService("Players").LocalPlayer.PlayerGui.Interface.Lobby.Styles.TopPanel.DisplayName.Text
+			if int1 == desiredStyle then
+				print("STOP! You got:", int1)
+				autoSpin = false -- Stop spinning automatically
+				showNotification(int1) -- Show notification
+				break
+			else
+				game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.7.0"].knit.Services.StylesService.RF.Roll:InvokeServer(false)
+				print("Spinning... Current result:", int1)
+				wait(0.5) -- Delay between spins
+			end
+		end
+	end)()
+end
