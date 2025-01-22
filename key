@@ -103,6 +103,7 @@ local function generateNonce()
     return str
 end
 
+
 -- Whitelist keys
 local whitelist = {
     "KEY_crip213",
@@ -112,7 +113,11 @@ local whitelist = {
     "KEY_rylz902",
     "KEY_tetsuo876",
     "KEY_kuan213",
-    "KEY_neko732"
+    "KEY_neko732",
+    "KEY_buyer98388",
+    "KEY_givelofetime2883",
+    "KEY_lofevive0983"
+    
 }
 
 local function verifyKey(key)
